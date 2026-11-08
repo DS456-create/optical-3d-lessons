@@ -1,0 +1,51 @@
+/* OptiKit 共用樣式（M3）：色票、深色模式、字體、標題列、語言切換、底部三課程選單。
+   只放「三門課都會用到」的樣式；CPO 專用的 3D 版面仍留在 index.html。 */
+:root{--paper:#FAF6F0;--sf:#fff;--card:#FFFDF9;--line:#E6DDD1;--grid:#E9DFCE;--br:#8D4A2F;--ink:#4A3F35;--ink2:#2E2620;--mut:#8A7A68;--acc:#E8833A;--teal:#2A7A6B;--track:#E7DCCB;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#1B1512;--sf:#262019;--card:#2B211A;--line:#453729;--grid:#2E251D;--br:#C07A52;--ink:#E7DCCB;--ink2:#F7EFE0;--mut:#B3A28A;--acc:#EE9A52;--teal:#4FBFA8;--track:#453729}}
+:root[data-theme=dark]{--paper:#1B1512;--sf:#262019;--card:#2B211A;--line:#453729;--grid:#2E251D;--br:#C07A52;--ink:#E7DCCB;--ink2:#F7EFE0;--mut:#B3A28A;--acc:#EE9A52;--teal:#4FBFA8;--track:#453729}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{font:13.5px/1.55 'Noto Sans TC','PingFang TC','Microsoft JhengHei',system-ui,sans-serif;color:var(--ink);background:var(--paper);overflow:hidden}
+button{font:inherit}
+/* 方格紙背景 */
+.okgrid{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+/* 標題列 */
+header{grid-area:h;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px}
+.logo{display:flex;gap:10px;align-items:center}.lg{width:38px;height:38px;border-radius:10px;background:var(--br);display:grid;place-items:center}
+h1{font-size:15px;font-weight:900;margin:0;color:var(--ink2);letter-spacing:.04em}h1 b{color:var(--br)}
+.sub{font-size:11px;color:var(--mut);letter-spacing:.2em}
+.hr{display:flex;gap:10px;align-items:center}
+.badge{font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--mut);border:1px solid var(--line);background:var(--sf);border-radius:99px;padding:5px 12px}
+.badge::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-right:8px}
+.lang{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--sf)}
+.lang button{border:0;background:none;padding:6px 13px;font-weight:700;color:var(--mut);cursor:pointer}.lang .on{background:var(--br);color:#fff}
+/* 底部三課程選單（取代原本四個學習階段按鈕） */
+#course{grid-area:b;display:flex;gap:8px;padding:8px 12px}
+#course a{flex:1;display:flex;align-items:center;gap:10px;padding:7px 14px;border:1px solid var(--line);border-radius:12px;background:var(--sf);color:var(--ink);cursor:pointer;text-align:left;text-decoration:none;min-width:0}
+#course a:hover{border-color:var(--br)}
+#course a.on{background:var(--br);border-color:var(--br);color:#fff;cursor:default}
+#course em{font-style:normal;font-size:20px;font-weight:900;color:var(--br)}#course .on em{color:#fff}
+#course b{display:block;font-size:13px}#course small{font-size:10.5px;opacity:.75}
+/* M7-A：架構比較入口（與三門課分隔、虛線框、無編號，表示「不是第四門課」） */
+#course a.okcmp{flex:none;border-style:dashed;margin-left:6px;background:var(--paper)}
+#course a.okcmp i{font-style:normal;font-size:17px;font-weight:900;color:var(--acc)}
+#course a.okcmp.on{background:var(--br);border-style:solid;color:#fff}#course a.okcmp.on i{color:#fff}
+@media(max-width:900px){.badge,#course small{display:none}#course{overflow:auto}#course a{padding:7px 10px}#course a.okcmp{margin-left:0;flex-direction:column;justify-content:center;gap:0;padding:4px 8px;text-align:center}#course a.okcmp b{font-size:11px;white-space:nowrap}}
+/* 建置中課程頁（NPO、可插拔在 M5 / M6 前使用；只有文字，沒有 3D） */
+.okpage{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"h" "m" "b"}
+.okmain{grid-area:m;overflow:auto;padding:4px 12px 12px}
+.okcard{max-width:760px;margin:0 auto;background:var(--sf);border:1px solid var(--line);border-left:4px solid var(--br);border-radius:14px;padding:18px 20px}
+.okcard h2{margin:0;font-size:20px;font-weight:900;color:var(--ink2)}
+.okcard .en{font-size:12px;font-weight:700;color:var(--mut);letter-spacing:.06em}
+.okcard h3{font-size:11px;letter-spacing:.14em;font-weight:900;color:var(--mut);margin:18px 0 6px}
+.okcard p{margin:6px 0}.okcard ul{margin:4px 0;padding-left:20px}.okcard li{margin:3px 0}
+.okstat{display:inline-block;margin:10px 0 2px;font-size:12px;font-weight:700;color:var(--ink2);background:var(--paper);border:1px dashed var(--acc);border-radius:99px;padding:3px 12px}
+.okstat::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-right:7px}
+.okarch{display:grid;gap:6px}
+.okarch div{display:flex;gap:10px;align-items:baseline;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:7px 12px;font-size:12.5px}
+.okarch div.on{border-color:var(--br);box-shadow:inset 3px 0 0 var(--br)}
+.okarch b{flex:none;min-width:9.5em;color:var(--ink2)}.okarch span{color:var(--ink)}
+.oknote{font-size:11.5px;color:var(--mut);margin-top:14px}
+.okgo{display:inline-block;margin-top:14px;background:var(--br);color:#fff;text-decoration:none;font-weight:700;border-radius:99px;padding:7px 18px}
+@media(max-width:900px){body{overflow:auto}.okpage{height:auto;min-height:100%}.okcard{padding:14px}.okarch div{flex-direction:column;gap:2px}}

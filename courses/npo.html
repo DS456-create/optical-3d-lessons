@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHIP PACKAGING · 課程 2 · NPO 近封裝光學</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="../core/core.css">
+<link rel="stylesheet" href="../core/viewer.css">
+</head>
+<body>
+<!-- 課程 2：NPO 近封裝光學（M5）。版面與 CPO 課相同；3D 模型、物理、文字皆為 NPO 獨立建模，見 courses/npo/*.js -->
+<div id="app" class="okgrid">
+<header>
+ <div class="logo"><div class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></div><div><h1>CHIP PACKAGING <b>入門</b></h1><div class="sub" id="sb"></div></div></div>
+ <div class="hr"><span class="badge" id="bd"></span><div class="lang"><button data-l="zh">中</button><button data-l="en">EN</button></div></div>
+</header>
+<aside id="side"><div class="sh"><span id="st1"></span><button class="tg" id="tg" title="收合 / Collapse">‹</button></div><div class="sl" id="sl"></div></aside>
+<main id="vp"><canvas id="cv"></canvas><div id="labs"></div><div class="pill" id="pill"></div><div class="chip" id="chip" style="top:62px"></div><div class="hint" id="hint"></div><div id="runb" hidden style="top:92px"></div>
+ <div id="sch" hidden></div>
+ <div id="ex"><div><span id="exl"></span><b id="exv">45%</b></div><input type="range" id="exr" min="0" max="100" value="45"></div>
+ <div id="tb"><button>↺</button><button>+</button><button>−</button><button id="au">▶</button><button class="on"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8.5V2h6.5L14 7.5 7.5 14z"/><circle cx="5" cy="5" r="1"/></svg></button><button id="scb" class="wide"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="5" height="4" rx="1"/><rect x="10" y="10" width="5" height="4" rx="1"/><path d="M6 4h3.5v8H10"/></svg><span class="tx"></span></button></div></main>
+<section id="panel"><div class="tabs" id="tabs"></div><div id="pb"></div></section>
+<nav id="course"></nav>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../core/ui.js"></script>
+<script src="../core/viewer.js"></script>
+<script src="npo/npo-physics.js"></script>
+<script src="npo/npo-content.js"></script>
+<script src="npo/npo-app.js"></script>
+</body>
+</html>

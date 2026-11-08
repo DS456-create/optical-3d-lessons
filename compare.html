@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHIP PACKAGING · 三架構比較</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="core/core.css">
+<style>
+/* M7-A 三架構比較頁專用樣式（只在本頁使用，不放進 core/）。色票全部沿用 core.css 的變數。 */
+:root{--mod:#7c4dff}@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--mod:#b79bff}}:root[data-theme=dark]{--mod:#b79bff}
+.cw{max-width:1180px;margin:0 auto;display:grid;gap:14px}
+.cbox{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.cbox.lead{border-left:4px solid var(--br)}
+.cbox h2{margin:0;font-size:19px;font-weight:900;color:var(--ink2)}
+.cbox h3{margin:0 0 4px;font-size:15px;font-weight:900;color:var(--ink2)}
+.cbox p{margin:6px 0}.cbox ul{margin:4px 0;padding-left:20px}.cbox li{margin:3px 0}
+.eyb{font-size:10.5px;font-weight:900;letter-spacing:.16em;color:var(--mut);margin-bottom:2px}
+.key{background:var(--paper);border:1px dashed var(--acc);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:12.5px}
+.key b{color:var(--br)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tg3{font-size:11px;font-weight:700;border-radius:99px;padding:2px 10px;border:1px solid var(--line);background:var(--paper)}
+.tg3.a{border-color:#2e9d6a;color:#2e9d6a}.tg3.b{border-color:#d08a1a;color:#b8770f}.tg3.c{border-color:#d9534f;color:#d9534f}
+/* 三張布局圖 */
+.arch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ac{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.ac .hd{display:flex;align-items:baseline;gap:8px}.ac .hd em{font-style:normal;font-size:20px;font-weight:900;color:var(--br)}
+.ac .hd b{font-size:14px;color:var(--ink2)}.ac .rep{font-size:11px;color:var(--mut);margin:2px 0 4px}
+.ac svg{width:100%;height:auto;display:block;background:var(--paper);border-radius:8px;border:1px solid var(--line)}
+.ac ul{font-size:12px;padding-left:18px;margin:8px 0 6px;flex:1}
+.go{align-self:flex-start;display:inline-block;background:var(--br);color:#fff;text-decoration:none;font-weight:700;border-radius:99px;padding:5px 14px;font-size:12px}
+.go:hover{filter:brightness(1.1)}
+.d text{font-family:inherit;font-size:10px;font-weight:700;fill:var(--ink2);text-anchor:middle}
+.d .m{fill:var(--mut);font-weight:500}.d .s{font-size:8.5px}
+.d .pcb{fill:var(--track)}.d .sub{fill:var(--line)}.d .die{fill:var(--ink2)}.d .die+text{fill:var(--paper)}
+.d .blk{fill:var(--sf);stroke:var(--mut);stroke-width:1}.d .opt{fill:var(--sf);stroke:var(--teal);stroke-width:1.2}
+.d .pnl{fill:var(--mut);opacity:.55}.d .cage{fill:none;stroke:var(--mut);stroke-width:1;stroke-dasharray:2 2}
+.d .bA{fill:none;stroke:var(--br);stroke-width:1.3;stroke-dasharray:5 3}.d .bO{fill:none;stroke:var(--teal);stroke-width:1.3;stroke-dasharray:5 3}
+.d .el{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round}.d .md{fill:none;stroke:var(--mod);stroke-width:2.4;stroke-dasharray:6 3}
+.d .cwl{fill:none;stroke:var(--teal);stroke-width:2.4}.d .ld{fill:none;stroke:var(--mut);stroke-width:.8}
+.d .tA{fill:var(--br)!important}.d .tO{fill:var(--teal)!important}.d .tE{fill:var(--acc)!important}
+.lgd{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--mut);margin-top:10px}
+.lgd span{display:inline-flex;align-items:center;gap:6px}.lgd i{display:inline-block;width:22px;height:0;border-top:3px solid var(--acc)}
+.lgd i.m{border-top:2.5px dashed var(--mod)}.lgd i.c{border-top-color:var(--teal)}.lgd i.ba{border-top:1.5px dashed var(--br)}.lgd i.bo{border-top:1.5px dashed var(--teal)}
+/* 表格（桌面三欄並排；窄螢幕改成每列一張卡） */
+.tw{overflow-x:auto}
+table.ct{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+.ct th,.ct td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+.ct thead th{font-size:12px;color:var(--ink2);background:var(--paper);position:sticky;top:0}
+.ct thead th em{font-style:normal;font-weight:900;color:var(--br);margin-right:4px}
+.ct tbody th{width:15%;font-weight:900;color:var(--ink2);font-size:12px}
+.ct td{width:28.3%}.ct td small{display:block;color:var(--mut);font-size:11px;margin-top:2px}
+.ct tr:last-child>*{border-bottom:0}
+.lv{display:inline-block;font-size:10.5px;font-weight:900;border-radius:6px;padding:0 6px;margin-right:4px;border:1px solid var(--line);background:var(--paper);color:var(--ink2)}
+.num{font-variant-numeric:tabular-nums;font-weight:900;color:var(--ink2);font-size:13.5px}
+.cond{font-size:11.5px;color:var(--ink);background:var(--paper);border-radius:10px;padding:8px 12px;margin-top:8px}
+.cond b{color:var(--ink2)}
+.no{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:6px}
+.no div{border:1px solid var(--line);border-radius:10px;background:var(--paper);padding:8px 12px;font-size:12px}
+.no b{display:block;color:var(--ink2);font-size:12.5px}.no span{display:block;margin-top:3px;font-weight:700;color:#b8770f;font-size:11.5px}
+.fit{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.fit div{border:1px solid var(--line);border-top:3px solid var(--br);border-radius:10px;background:var(--card);padding:8px 12px;font-size:12px}
+.fit b{display:block;color:var(--ink2);font-size:13px;margin-bottom:2px}
+.fnote{font-size:11px;color:var(--mut);margin-top:8px}
+@media(max-width:900px){.arch,.fit{grid-template-columns:1fr}.okmain{padding:4px 8px 12px}}
+@media(max-width:700px){
+ table.ct,.ct tbody,.ct tr,.ct th,.ct td{display:block;width:auto}
+ .ct thead{display:none}
+ .ct tr{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--card)}
+ .ct tbody th{width:auto;background:var(--paper);border-radius:10px 10px 0 0}
+ .ct td::before{content:attr(data-h);display:block;font-size:10.5px;font-weight:900;color:var(--br);letter-spacing:.04em}
+ .ct tr>*{border-bottom:1px solid var(--line)}.ct tr>*:last-child{border-bottom:0}
+}
+</style>
+</head>
+<body>
+<!-- M7-A：三架構比較頁。不是第四門課；只用 SVG 示意、表格與短文字。量化數字只取自 NPO／可插拔課既有的物理純函式（統一 ≈53 GHz 條件），不新增任何公式。 -->
+<div class="okpage okgrid">
+<header>
+ <div class="logo"><div class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></div><div><h1>CHIP PACKAGING <b>入門</b></h1><div class="sub" id="sb"></div></div></div>
+ <div class="hr"><span class="badge" id="bd"></span><div class="lang"><button data-l="zh">中</button><button data-l="en">EN</button></div></div>
+</header>
+<main class="okmain"><div class="cw" id="cw"></div></main>
+<nav id="course"></nav>
+</div>
+<script src="core/ui.js"></script>
+<script src="courses/npo/npo-physics.js"></script>
+<script src="courses/pluggable/plug-physics.js"></script>
+<script>
+(function () {
+  var K = window.OptiKit || {}, lang = K.getLang ? K.getLang() : 'zh';
+  var C3 = ['pluggable', 'npo', 'cpo'];
+  var PATH = { pluggable: 'courses/pluggable.html', npo: 'courses/npo.html', cpo: 'index.html' };
+
+  /* ---------- 文字（中 / EN）。每格都是「本站各課的代表案例」描述；不代表所有產品。 ---------- */
+  var D = {
+    zh: {
+      title: 'CHIP PACKAGING · 三架構比較', sub: '探索 · 理解 · 比較', bd: '教育級比較 · 非產品規格',
+      eyb: '架構比較 · 不是第四門課',
+      h: '可插拔、NPO、CPO：差在哪裡？',
+      lead: '三門課的 3D 教材各自建模。本頁把它們放在一起，看「光電轉換發生在哪裡、和交換晶片 ASIC 怎麼連、壞了怎麼換」。',
+      key: '<b>分類依據不是距離。</b>三種架構的差別在於：光學引擎（把電訊號變成光的元件）位於哪一個<b>封裝邊界</b>內、和 ASIC 之間用什麼<b>連接方式</b>、能不能<b>單獨更換</b>。電氣走線變短只是這些結構選擇造成的結果之一——可插拔模組即使放得很近仍是可插拔；NPO 的走線再短也仍是兩個獨立封裝。',
+      tagT: '本頁資訊分三類：', tags: ['A 可直接比較：結構與技術特徵', 'B 統一條件後才比較：電氣互連損耗與延遲', 'C 目前無法可靠比較：總功耗、pJ/bit 等'],
+      n: { pluggable: '傳統可插拔光模組', npo: 'NPO 近封裝光學', cpo: 'CPO 共同封裝光學' },
+      rep: { pluggable: '本課代表案例：800G OSFP 2×DR4', npo: '本課代表案例：共同載板＋獨立光學引擎封裝', cpo: '本課代表案例：ASIC 與光學引擎同封裝＋外部雷射' },
+      bul: {
+        pluggable: ['光電轉換在<b>前面板的可插拔模組</b>裡（DSP、EML 雷射、PD）。', '電訊號從 ASIC 走<b>系統 PCB 長走線</b>，經 OSFP 連接器與金手指進模組。', '模組前端 <b>MPO 連接器</b>直接插光纖；整個模組可從前面板拔插更換。'],
+        npo: ['光學引擎是<b>獨立封裝</b>，和 ASIC 封裝一起裝在<b>共同載板</b>上。', '電訊號走<b>載板走線</b>到引擎（焊接或插座連接）；引擎內有自己的雷射。', '引擎的光纖耦合器接<b>光纖跳線</b>，再到板邊（前面板）連接器。'],
+        cpo: ['光學引擎（EIC＋PIC）和 ASIC 在<b>同一個封裝</b>的基板／中介層上。', '電訊號只走<b>封裝內短走線</b>就到 EIC；CW 雷射光來自封裝外的 <b>ELS 外部雷射</b>。', 'MRM 調變後的光由 <b>FAU 光纖陣列</b>耦合進光纖，再到前面板。']
+      },
+      go: '進入 3D 課程 →',
+      svg: {
+        pcb: '系統 PCB', panel: '前面板', asicPkg: 'ASIC 封裝', mod: '可插拔模組', hot: '⇆ 前面板拔插', trace: 'PCB 長走線', conn: '連接器',
+        carrier: '共同載板', oePkg: '光學引擎封裝', ctrace: '載板走線', att: '焊接／插座', jumper: '光纖跳線', laser: '雷射',
+        onePkg: '同一個封裝（ASIC＋光學引擎）', ptrace: '封裝內短走線', els: 'ELS 外部雷射', fau: 'FAU', oe: '光引擎', fibers: '光纖'
+      },
+      lg: ['高速電訊號', '調變光／光纖', '連續光（CW）', 'ASIC 封裝邊界', '光學封裝／模組邊界'],
+      lgN: '示意圖不按比例；只畫一側的光路。',
+      t1: 'A｜結構與技術特徵（可直接比較）',
+      t1s: '以下是「結構上是什麼」的差異，不涉及數值，可以直接並排比較。每格描述本站該課的代表案例；實際產品可能不同。',
+      rows1: [
+        ['ASIC 與光學引擎的位置', '引擎在前面板的模組內，離 ASIC 最遠', '引擎與 ASIC 在同一塊載板上、相鄰但各自封裝', '引擎與 ASIC 在同一個封裝內，緊鄰 ASIC 晶片'],
+        ['封裝邊界', 'ASIC 封裝與光模組完全分開', 'ASIC 封裝 ≠ 引擎封裝（兩個封裝，可分開測試）', '一個封裝包含 ASIC 與光學引擎'],
+        ['載板結構', 'ASIC 封裝直接焊在系統 PCB；模組插在前面板籠子', 'ASIC 與引擎裝在共同高效能載板，載板再裝到系統 PCB', '封裝基板＋中介層承載 ASIC 與引擎，整個封裝裝在系統 PCB'],
+        ['高速電氣互連路徑', 'ASIC → 封裝 → 系統 PCB 長走線 → OSFP 連接器 → 金手指 → 模組 DSP', 'ASIC → 封裝 → 焊球 → 載板走線 → 焊接／插座 → 引擎封裝 → EIC', 'ASIC 晶片 → 中介層／封裝內走線 → EIC'],
+        ['雷射光源', '模組內（本例為 EML，直接調變輸出）', '引擎內 CW 雷射晶片＋MZM 調變（本例）', '封裝外 ELS 提供 CW 光，封裝內 MRM 調變（本例）'],
+        ['光進入光纖的方式', '模組內透鏡 → MPO-12 連接器 → 單模光纖', '引擎光纖耦合器 → 光纖跳線 → 板邊連接器', 'PIC 波導 → FAU 光纖陣列 → 光纖 → 前面板'],
+        ['典型維修與更換', '從前面板拔出、單埠更換，不需拆機', '引擎可單獨製造測試；插座版可單獨更換引擎，但需拆機（本例不是前面板熱插拔）', '引擎與 ASIC 同封裝，引擎故障通常要換整個封裝組件；ELS 雷射可單獨更換']
+      ],
+      t2: '技術取捨（定性趨勢）',
+      t2s: '只寫「通常的方向」，不給百分比。實際大小取決於速率、通道設計、是否保留 DSP、散熱方案等，<b>依實際產品與設計而異</b>。',
+      rows2: [
+        ['電氣損耗', '最大：長 PCB 走線＋前面板連接器', '中等：載板走線較短，但多一個焊接／插座介面', '最小：封裝內走線最短'],
+        ['功耗（電氣 I/O 部分）', '長通道通常需要較強等化的 SerDes 與模組 DSP 重定時，電氣部分負擔較重', '通道較短，可望減輕 SerDes 負擔；實際取決於是否仍保留 DSP／重定時', '通道最短，是 CPO 降低每 bit 能耗的主要動機之一；但雷射、加熱器等光學功耗仍存在'],
+        ['密度（頻寬）', '受前面板可容納的埠數與模組外形限制', '受載板面積、引擎尺寸與擺放位置限制', '受封裝邊緣長度（shoreline）與光纖連接數量限制'],
+        ['散熱', '熱源分散：每個模組在前面板各自散熱，與 ASIC 散熱分開', '引擎靠近 ASIC 但分開封裝，載板上的散熱需一起規劃', '光學元件和高功耗 ASIC 共處一個封裝；溫度敏感元件（如 MRM 共振會隨溫度漂移）需加熱器鎖定與熱管理'],
+        ['訊號完整性', '負擔最重：長通道損耗與連接器反射，需要等化與 DSP', '中等：走線長度與焊接／插座介面造成影響', '電氣通道最短、負擔最輕；封裝內佈線密集的串擾等問題仍需設計（本站未模擬）'],
+        ['可維修性', '最高：熱插拔、標準外形、可混用', '中等：可分開測試；更換需拆機', '最低：與 ASIC 綁在一起；以可更換的外部雷射降低風險']
+      ],
+      t3: 'B｜統一條件後才可比較的量化指標',
+      t3s: '只有「ASIC 到光學側第一個電氣元件」這一段電氣互連，三課都有模型，可以在同一頻率下並排。',
+      cond: '<b>比較條件：</b>頻率統一為 ≈53 GHz（200G／通道 PAM4 的 Nyquist 頻率）。<b>計算範圍：</b>ASIC 封裝（CPO 為 ASIC 晶片邊緣）→ 光學側第一個電氣元件（CPO、NPO 為 EIC；可插拔為模組內 DSP）。<b>不含：</b>SerDes 等化、光學損耗、功耗。<b>來源：</b>各課自己的教學係數（〔C〕教育假設，各課不共用係數），延遲用 6.5 ps/mm（〔B〕教科書近似，三課相同的物理常數）。代表長度＝各課滑桿預設值；範圍＝各課滑桿範圍（本站教學布局，不是產品規格）。',
+      h3: ['', '可插拔', 'NPO', 'CPO'],
+      rows3: ['走線長度（各課滑桿範圍）', '代表長度', '電氣互連損耗 @ ≈53 GHz〔C〕', '損耗範圍（滑桿兩端）〔C〕', '傳播延遲（代表長度）〔B〕'],
+      plugN: '可插拔課本身是 800G（100G／通道，f_N ≈ 26.6 GHz），所以課程頁 200 mm 顯示 {a} dB；本表為了統一條件改用 ≈53 GHz，同一函式算出 {b} dB。NPO 課頁的「三架構對照」用的也是本表同一組數字。',
+      trend: '這些數字只說明「電氣路徑越長、介面越多，損耗越大」的趨勢。係數是教學假設，不是產品規格或實測；<b>不能用它換算功耗，也不能據此宣稱某架構節省多少百分比。</b>',
+      t4: 'C｜目前無法可靠比較的項目',
+      t4s: '三門課的模型範圍、產品案例與速率條件不同，以下項目直接並排會產生誤導，所以本頁不提供數字。',
+      no: [
+        ['總功耗、pJ/bit', 'CPO 課只估算單一光學引擎（SerDes＋驅動＋雷射＋加熱器）；可插拔課不列模組功耗；NPO 課不計功耗——計算範圍不同。'],
+        ['端到端光學鏈路預算', '只有 CPO 課建立了光學損耗與接收功率模型；另外兩課沒有。'],
+        ['訊號品質（眼圖、BER）', 'CPO 課的眼圖是教育示意；另外兩課未建模，且本站都沒有 BER 模型。'],
+        ['成本、良率、可靠度', '本站沒有任何模型或可引用的一致資料。']
+      ],
+      noV: '依實際產品與設計而異',
+      t5: '三種技術各自適合解決的問題',
+      fit: [
+        ['傳統可插拔', '需要彈性與現場維護：不同距離的光學可混用、可從前面板更換、供應商多元，是目前資料中心廣泛使用的方式。'],
+        ['NPO 近封裝光學', '想縮短電氣通道、減輕 SerDes 負擔，同時保留「引擎分開製造、分開測試、可替換」的彈性——介於兩者之間的折衷。'],
+        ['CPO 共同封裝光學', '單一交換晶片頻寬很高、前面板密度與電氣 I/O 功耗成為瓶頸時，把光電轉換搬進封裝，以最短電氣路徑換取能效與密度；代價是維修性、熱管理與製造整合難度。']
+      ],
+      fnote: '本頁所有描述與數字皆為教育級比較：〔A〕公開／產業資料、〔B〕教科書公式、〔C〕教育假設。未標示為 OIF／IEEE 標準或實測。',
+      na: '—'
+    },
+    en: {
+      title: 'CHIP PACKAGING · Architecture Comparison', sub: 'EXPLORE · UNDERSTAND · COMPARE', bd: 'Educational comparison · not product specs',
+      eyb: 'COMPARISON · NOT A FOURTH COURSE',
+      h: 'Pluggable, NPO, CPO: what is different?',
+      lead: 'Each of the three 3D courses has its own model. This page puts them side by side: where electrical-to-optical conversion happens, how it connects to the switch ASIC, and how it is repaired.',
+      key: '<b>Distance is not the classifier.</b> The three architectures differ in which <b>package boundary</b> the optical engine (the part that turns electrical signals into light) sits in, how it is <b>connected</b> to the ASIC, and whether it can be <b>replaced on its own</b>. A shorter electrical trace is only one consequence of these choices — a pluggable module placed close by is still pluggable, and an NPO with a very short trace is still two separate packages.',
+      tagT: 'This page sorts information into three kinds:', tags: ['A Directly comparable: structure and technical features', 'B Comparable only under one condition: interconnect loss and delay', 'C Not reliably comparable yet: total power, pJ/bit, etc.'],
+      n: { pluggable: 'Pluggable Optics', npo: 'NPO · Near-Packaged Optics', cpo: 'CPO · Co-Packaged Optics' },
+      rep: { pluggable: 'Course example: 800G OSFP 2×DR4', npo: 'Course example: common carrier + separately packaged engines', cpo: 'Course example: ASIC and engines in one package + external laser' },
+      bul: {
+        pluggable: ['E/O conversion happens inside a <b>front-panel pluggable module</b> (DSP, EML lasers, PDs).', 'The electrical signal travels a <b>long system-PCB trace</b>, then the OSFP connector and gold fingers into the module.', 'Fiber plugs into the module’s <b>MPO connector</b>; the whole module is replaced from the front panel.'],
+        npo: ['The optical engine is a <b>separate package</b>, mounted with the ASIC package on a <b>common carrier</b>.', 'The signal runs over a <b>carrier trace</b> to the engine (solder or socket); the engine has its own laser.', 'The engine’s fiber coupler feeds a <b>fiber jumper</b> to the board-edge (front-panel) connector.'],
+        cpo: ['Optical engines (EIC + PIC) share <b>one package</b> substrate / interposer with the ASIC.', 'The signal crosses only a <b>short in-package trace</b> to the EIC; CW light comes from an <b>external laser source (ELS)</b>.', 'Light modulated by the MRM is coupled into fiber by a <b>fiber array unit (FAU)</b>, then to the front panel.']
+      },
+      go: 'Open 3D course →',
+      svg: {
+        pcb: 'System PCB', panel: 'Panel', asicPkg: 'ASIC package', mod: 'Pluggable module', hot: '⇆ front-panel swap', trace: 'Long PCB trace', conn: 'Conn.',
+        carrier: 'Common carrier', oePkg: 'Engine package', ctrace: 'Trace', att: 'Solder / socket', jumper: 'Fiber jumper', laser: 'Laser',
+        onePkg: 'One package (ASIC + optical engines)', ptrace: 'Short in-package trace', els: 'ELS laser', fau: 'FAU', oe: 'OE', fibers: 'Fiber'
+      },
+      lg: ['High-speed electrical', 'Modulated light / fiber', 'Continuous-wave light', 'ASIC package boundary', 'Optical package / module boundary'],
+      lgN: 'Not to scale; optics drawn on one side only.',
+      t1: 'A | Structure and technical features (directly comparable)',
+      t1s: 'These are differences in what the architecture is, with no numbers involved, so they can be compared directly. Each cell describes this site’s course example; real products may differ.',
+      rows1: [
+        ['ASIC ↔ optical engine', 'Engine is inside a front-panel module, farthest from the ASIC', 'Engine and ASIC sit side by side on one carrier, each in its own package', 'Engine is inside the same package, right next to the ASIC die'],
+        ['Package boundary', 'ASIC package and optical module are fully separate', 'ASIC package ≠ engine package (two packages, tested separately)', 'One package holds the ASIC and the optical engines'],
+        ['Board structure', 'ASIC package soldered to the system PCB; module plugs into a front-panel cage', 'ASIC and engines on a common high-performance carrier, which mounts on the system PCB', 'Package substrate + interposer carry ASIC and engines; the package mounts on the system PCB'],
+        ['High-speed electrical path', 'ASIC → package → long system-PCB trace → OSFP connector → gold fingers → module DSP', 'ASIC → package → solder balls → carrier trace → solder / socket → engine package → EIC', 'ASIC die → interposer / in-package trace → EIC'],
+        ['Laser source', 'Inside the module (EML, directly modulated, in this example)', 'CW laser chip inside the engine + MZM modulation (this example)', 'External ELS supplies CW light; MRM modulates it in the package (this example)'],
+        ['How light enters fiber', 'Lens in module → MPO-12 connector → single-mode fiber', 'Engine fiber coupler → fiber jumper → board-edge connector', 'PIC waveguide → FAU fiber array → fiber → front panel'],
+        ['Typical repair / replacement', 'Pull from the front panel; replace one port, no disassembly', 'Engines are built and tested separately; a socketed engine can be replaced, but with disassembly (not front-panel hot-swap here)', 'Engine shares the package with the ASIC, so an engine fault usually means replacing the whole package assembly; the ELS laser is replaceable on its own']
+      ],
+      t2: 'Trade-offs (qualitative trends)',
+      t2s: 'Only the usual direction is given, with no percentages. Actual sizes depend on data rate, channel design, whether a DSP is kept, the cooling solution and more — <b>they vary by actual product and design</b>.',
+      rows2: [
+        ['Electrical loss', 'Highest: long PCB trace + front-panel connector', 'Medium: shorter carrier trace, plus one solder / socket interface', 'Lowest: shortest in-package trace'],
+        ['Power (electrical I/O part)', 'Long channels usually need stronger SerDes equalization plus a retiming DSP in the module', 'Shorter channel can ease SerDes load; depends on whether a DSP / retimer is kept', 'Shortest channel — a main motivation for lower energy per bit; laser and heater power still remain'],
+        ['Density (bandwidth)', 'Limited by how many ports fit on the front panel and module size', 'Limited by carrier area, engine size and placement', 'Limited by package edge length (shoreline) and fiber count'],
+        ['Thermal', 'Spread out: each module cools itself at the front panel, separate from the ASIC', 'Engines near the ASIC but packaged separately; carrier cooling must cover both', 'Optics share a package with a high-power ASIC; temperature-sensitive parts (an MRM resonance drifts with temperature) need heater locking and thermal design'],
+        ['Signal integrity', 'Heaviest: long-channel loss and connector reflections need equalization and DSP', 'Medium: trace length and the solder / socket interface matter', 'Lightest electrical channel; dense in-package routing (crosstalk etc.) still needs design (not simulated here)'],
+        ['Serviceability', 'Highest: hot-swap, standard form factors, mix and match', 'Medium: separate testing; replacement needs disassembly', 'Lowest: tied to the ASIC; a replaceable external laser reduces risk']
+      ],
+      t3: 'B | Numbers comparable only under one condition',
+      t3s: 'Only the electrical interconnect from the ASIC to the first electrical part on the optical side is modelled in all three courses, so it can be shown side by side at one frequency.',
+      cond: '<b>Condition:</b> one frequency, ≈53 GHz (Nyquist frequency of 200G-per-lane PAM4). <b>Scope:</b> ASIC package (ASIC die edge for CPO) → first electrical part on the optical side (EIC for CPO and NPO; the module DSP for pluggable). <b>Not included:</b> SerDes equalization, optical loss, power. <b>Source:</b> each course’s own teaching coefficients ([C] educational assumptions, not shared between courses); delay uses 6.5 ps/mm ([B] textbook approximation, the same physical constant in all three). Typical length = each course’s slider default; range = each course’s slider range (this site’s teaching layouts, not product specs).',
+      h3: ['', 'Pluggable', 'NPO', 'CPO'],
+      rows3: ['Trace length (course slider range)', 'Typical length', 'Interconnect loss @ ≈53 GHz [C]', 'Loss range (slider ends) [C]', 'Propagation delay (typical length) [B]'],
+      plugN: 'The pluggable course itself is 800G (100G per lane, f_N ≈ 26.6 GHz), so its page shows {a} dB at 200 mm; here the same function at ≈53 GHz gives {b} dB to keep one condition. The NPO course’s “three architectures” reference uses these same numbers.',
+      trend: 'These numbers only show the trend “a longer electrical path with more interfaces loses more”. The coefficients are teaching assumptions, not product specs or measurements; <b>they cannot be converted into power, and cannot support claims that one architecture saves a given percentage.</b>',
+      t4: 'C | Not reliably comparable yet',
+      t4s: 'The three courses differ in model scope, product example and data rate, so placing these items side by side would mislead. No numbers are given.',
+      no: [
+        ['Total power, pJ/bit', 'The CPO course estimates one optical engine (SerDes + driver + laser + heater); the pluggable course lists no module power; the NPO course computes no power — different scopes.'],
+        ['End-to-end optical link budget', 'Only the CPO course models optical loss and received power; the other two do not.'],
+        ['Signal quality (eye, BER)', 'The CPO eye diagram is an educational sketch; the other two are not modelled, and no course has a BER model.'],
+        ['Cost, yield, reliability', 'No model or consistent citable data on this site.']
+      ],
+      noV: 'Varies by actual product and design',
+      t5: 'What each technology is good for',
+      fit: [
+        ['Pluggable', 'Flexibility and field service: mix optics for different reaches, replace from the front panel, many suppliers — the approach widely used in data centers today.'],
+        ['NPO', 'Shorten the electrical channel and ease SerDes load while keeping engines built, tested and replaced separately — a middle ground between the two.'],
+        ['CPO', 'When one switch chip has so much bandwidth that front-panel density and electrical I/O power become the bottleneck: move E/O conversion into the package and trade serviceability, thermal and integration difficulty for the shortest electrical path, efficiency and density.']
+      ],
+      fnote: 'Everything here is an educational comparison: [A] public / industry data, [B] textbook formulas, [C] educational assumptions. Nothing is labelled as an OIF / IEEE standard or a measurement.',
+      na: '—'
+    }
+  };
+
+  /* ---------- 量化（B 區）：只呼叫既有純函式，不新增公式 ----------
+     NPO：npoElec(L, 'solder')（§3.14，53 GHz）；CPO：npoElec.K.ref.cpo（= CPO 課 §3.1b 在 53 GHz 的係數：1.0 dB + 0.199 dB/mm）；
+     可插拔：plugElec(L, plugElec.K.fRef = 53.125 GHz)（§3.15）。範圍＝各課滑桿範圍；代表長度＝各課預設。 */
+  function quant() {
+    var ne = K.npoElec, pe = K.plugElec;
+    if (!ne || !pe || !ne.K || !pe.K) return null;
+    var NK = ne.K, PK = pe.K, c = NK.ref.cpo, v = NK.v,
+        cpoIL = function (L) { return c.IF + c.a * L; };
+    return {
+      pluggable: { r: [PK.Lmin, PK.Ldef, PK.Lmax], il: pe(PK.Ldef, PK.fRef).il, lo: pe(PK.Lmin, PK.fRef).il, hi: pe(PK.Lmax, PK.fRef).il, lat: PK.v * PK.Ldef, own: pe(PK.Ldef).il },
+      npo: { r: [NK.Lmin, NK.Ldef, NK.Lmax], il: ne(NK.Ldef, 'solder').il, lo: ne(NK.Lmin, 'solder').il, hi: ne(NK.Lmax, 'solder').il, lat: v * NK.Ldef },
+      cpo: { r: [2, c.L, 30], il: cpoIL(c.L), lo: cpoIL(2), hi: cpoIL(30), lat: v * c.L }   /* 2–30 mm＝CPO 課滑桿範圍（§3.1b） */
+    };
+  }
+
+  /* ---------- 三張代表性布局圖（SVG 示意，不按比例） ---------- */
+  function T(x, y, s, cl) { return '<text x="' + x + '" y="' + y + '"' + (cl ? ' class="' + cl + '"' : '') + '>' + s + '</text>'; }
+  function R(x, y, w, h, cl, rx) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx || 1.5) + '" class="' + cl + '"/>'; }
+  function P(d, cl) { return '<path d="' + d + '" class="' + cl + '"/>'; }
+  function svgOf(id, s) {
+    var o = '<svg class="d" viewBox="0 0 360 212" role="img" aria-label="' + id + '">';
+    if (id === 'pluggable') {
+      o += R(8, 170, 304, 10, 'pcb') + T(70, 202, s.pcb, 'm') +
+        R(312, 66, 7, 124, 'pnl') + T(316, 60, s.panel, 'm s') +
+        R(18, 112, 86, 54, 'bA', 6) + T(61, 106, s.asicPkg, 'tA') +
+        R(26, 148, 70, 10, 'sub') + R(43, 128, 36, 20, 'die') + T(61, 141, 'ASIC') +
+        P('M96,165 H222', 'el') + T(160, 160, s.trace, 'tE') +
+        R(220, 150, 11, 18, 'blk') + T(226, 202, s.conn, 'm s') + P('M226,194 V170', 'ld') +
+        R(226, 120, 93, 48, 'cage', 3) +
+        R(232, 126, 120, 36, 'bO', 5) + T(286, 114, s.mod, 'tO') + T(286, 92, s.hot, 'm') +
+        R(232, 140, 8, 12, 'sub') + R(246, 134, 30, 20, 'blk') + T(261, 147, 'DSP') + R(284, 134, 24, 20, 'opt') + T(296, 147, 'EML') + R(328, 135, 18, 18, 'opt') + T(337, 148, 'MPO', 's') +
+        P('M240,146 H246', 'el') + P('M276,144 H284', 'el') + P('M308,144 H328', 'md') + P('M346,144 H360', 'md');
+    } else if (id === 'npo') {
+      o += R(8, 182, 344, 8, 'pcb') + T(60, 206, s.pcb, 'm') +
+        R(28, 164, 260, 14, 'sub') + T(200, 206, s.carrier, 'm') + P('M200,198 V178', 'ld') +
+        R(334, 70, 7, 120, 'pnl') + T(337, 62, s.panel, 'm s') +
+        R(36, 108, 86, 52, 'bA', 6) + T(79, 102, s.asicPkg, 'tA') +
+        R(44, 142, 70, 10, 'sub') + R(61, 122, 36, 20, 'die') + T(79, 135, 'ASIC') +
+        P('M114,160 H176', 'el') + T(146, 154, s.ctrace, 'tE') +
+        R(170, 112, 108, 48, 'bO', 6) + T(224, 106, s.oePkg, 'tO') +
+        R(176, 146, 96, 8, 'sub') + R(180, 126, 24, 18, 'blk') + T(192, 138, 'EIC') + R(207, 126, 42, 18, 'opt') + T(228, 138, 'PIC') + R(252, 128, 14, 14, 'opt') + T(259, 125, s.laser, 'm s') +
+        T(224, 174, s.att, 'm s') +
+        P('M204,135 H207', 'el') + P('M249,135 H252', 'cwl') + P('M266,135 C300,135 300,140 334,140', 'md') + T(300, 128, s.jumper, 'm s') + P('M341,140 H360', 'md');
+    } else {
+      o += R(8, 182, 344, 8, 'pcb') + T(60, 206, s.pcb, 'm') +
+        R(334, 60, 7, 130, 'pnl') + T(337, 52, s.panel, 'm s') +
+        R(30, 104, 226, 72, 'bA', 8) + T(143, 98, s.onePkg, 'tA') +
+        R(38, 160, 210, 12, 'sub') + R(52, 148, 182, 12, 'sub') +
+        R(116, 124, 54, 24, 'die') + T(143, 140, 'ASIC') +
+        R(62, 128, 40, 20, 'opt') + T(82, 141, s.oe) + R(184, 128, 40, 20, 'opt') + T(204, 141, s.oe) +
+        P('M102,140 H116', 'el') + P('M170,140 H184', 'el') + T(150, 202, s.ptrace, 'tE') + P('M177,194 V142', 'ld') +
+        R(226, 130, 9, 16, 'opt') + T(252, 135, s.fau, 'm s') +
+        R(296, 76, 38, 18, 'opt') + T(315, 70, s.els, 'tO') +
+        P('M296,86 C262,86 248,100 232,130', 'cwl') + P('M235,140 C280,140 300,146 334,146', 'md') + T(290, 156, s.fibers, 'm s') + P('M341,146 H360', 'md');
+    }
+    return o + '</svg>';
+  }
+
+  function f1(x) { return (+x).toFixed(1); }
+  function fill(s, o) { return s.replace(/\{(\w+)\}/g, function (m, k) { return o[k] != null ? o[k] : m; }); }
+
+  function render(l) {
+    lang = l; var d = D[l], zh = l === 'zh', q = quant(), $ = function (s) { return document.querySelector(s); };
+    document.title = d.title; $('#sb').textContent = d.sub; $('#bd').textContent = d.bd;
+    if (K.markLang) K.markLang(l);
+    var href = function (id) { return PATH[id] + '?lang=' + l; };
+    var h = '';
+    /* 導言 */
+    h += '<section class="cbox lead"><div class="eyb">' + d.eyb + '</div><h2>' + d.h + '</h2><p>' + d.lead + '</p><div class="key">' + d.key + '</div>' +
+      '<div class="tags"><span class="m" style="font-size:11.5px;color:var(--mut)">' + d.tagT + '</span>' +
+      d.tags.map(function (t, i) { return '<span class="tg3 ' + 'abc'.charAt(i) + '">' + t + '</span>'; }).join('') + '</div></section>';
+    /* 三張布局圖 */
+    h += '<section class="cbox"><div class="arch">' + C3.map(function (id, i) {
+      return '<div class="ac" data-arch="' + id + '"><div class="hd"><em>' + (i + 1) + '</em><b>' + d.n[id] + '</b></div><div class="rep">' + d.rep[id] + '</div>' +
+        svgOf(id, d.svg) + '<ul>' + d.bul[id].map(function (b) { return '<li>' + b + '</li>'; }).join('') + '</ul>' +
+        '<a class="go" data-go="' + id + '" href="' + href(id) + '">' + d.go + '</a></div>';
+    }).join('') + '</div><div class="lgd"><span><i></i>' + d.lg[0] + '</span><span><i class="m"></i>' + d.lg[1] + '</span><span><i class="c"></i>' + d.lg[2] + '</span><span><i class="ba"></i>' + d.lg[3] + '</span><span><i class="bo"></i>' + d.lg[4] + '</span><span>' + d.lgN + '</span></div></section>';
+    /* 表格產生器：rows = [[列名, 可插拔, NPO, CPO]] */
+    var head = '<thead><tr><th></th>' + C3.map(function (id, i) { return '<th><em>' + (i + 1) + '</em>' + d.n[id] + '</th>'; }).join('') + '</tr></thead>';
+    var tbl = function (rows, idA) {
+      return '<div class="tw"><table class="ct" id="' + idA + '">' + head + '<tbody>' + rows.map(function (r) {
+        return '<tr><th scope="row">' + r[0] + '</th>' + [1, 2, 3].map(function (k) { return '<td data-h="' + (k) + ' · ' + d.n[C3[k - 1]] + '">' + r[k] + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>';
+    };
+    h += '<section class="cbox"><h3>' + d.t1 + '</h3><p class="fnote" style="margin-top:0">' + d.t1s + '</p>' + tbl(d.rows1, 'tA') + '</section>';
+    h += '<section class="cbox"><h3>' + d.t2 + '</h3><p class="fnote" style="margin-top:0">' + d.t2s + '</p>' + tbl(d.rows2, 'tT') + '</section>';
+    /* B 區：統一條件的量化 */
+    var qr;
+    if (q) {
+      var mm = function (a) { return a[0] + '–' + a[2] + ' mm'; };
+      var lat = function (ps) { return ps >= 1000 ? f1(ps / 1000) + ' ns' : Math.round(ps) + ' ps'; };
+      qr = [
+        [d.rows3[0]].concat(C3.map(function (id) { return mm(q[id].r); })),
+        [d.rows3[1]].concat(C3.map(function (id) { return q[id].r[1] + ' mm'; })),
+        [d.rows3[2]].concat(C3.map(function (id) { return '<span class="num" data-il="' + id + '">' + f1(q[id].il) + ' dB</span>'; })),
+        [d.rows3[3]].concat(C3.map(function (id) { return f1(q[id].lo) + '–' + f1(q[id].hi) + ' dB'; })),
+        [d.rows3[4]].concat(C3.map(function (id) { return lat(q[id].lat); }))
+      ];
+    } else qr = d.rows3.map(function (r) { return [r, d.na, d.na, d.na]; });
+    h += '<section class="cbox"><h3>' + d.t3 + '</h3><p class="fnote" style="margin-top:0">' + d.t3s + '</p>' + tbl(qr, 'tQ') +
+      '<div class="cond">' + d.cond + '</div>' +
+      (q ? '<p class="fnote">' + fill(d.plugN, { a: f1(q.pluggable.own), b: f1(q.pluggable.il) }) + '</p>' : '') +
+      '<div class="key">' + d.trend + '</div></section>';
+    /* C 區：無法可靠比較 */
+    h += '<section class="cbox"><h3>' + d.t4 + '</h3><p class="fnote" style="margin-top:0">' + d.t4s + '</p><div class="no">' +
+      d.no.map(function (x) { return '<div><b>' + x[0] + '</b>' + x[1] + '<span>' + d.noV + '</span></div>'; }).join('') + '</div></section>';
+    /* 適合解決的問題 */
+    h += '<section class="cbox"><h3>' + d.t5 + '</h3><div class="fit">' + d.fit.map(function (x, i) {
+      return '<div><b>' + (i + 1) + ' · ' + x[0] + '</b>' + x[1] + '<p style="margin:8px 0 0"><a class="go" href="' + href(C3[i]) + '">' + d.go + '</a></p></div>';
+    }).join('') + '</div><p class="fnote">' + d.fnote + '</p></section>';
+    $('#cw').innerHTML = h;
+    if (K.courseNav) K.courseNav($('#course'), 'compare', l, '');
+  }
+  if (K.bindLang) K.bindLang(render);
+  render(lang);
+  window.CMPAPP = { quant: quant, render: render, D: D };   /* 測試用（只讀） */
+})();
+</script>
+</body>
+</html>

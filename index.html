@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHIP PACKAGING 入門 · CPO 互動 3D 教材</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="core/core.css">
+<style>
+/* 色票、字體、標題列、語言切換、底部課程選單已移至 core/core.css（三門課共用）；以下為 CPO 3D 課程專用版面 */
+#app{height:100%;display:grid;grid-template-columns:auto minmax(0,1fr) 340px;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"h h h" "s v p" "b b b"}
+#side{grid-area:s;width:250px;margin-left:12px;background:var(--sf);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;overflow:hidden;transition:width .22s}
+#side.c{width:44px}#side.c .sl,#side.c #st1,#side.c #ov,#side.c .sh2{display:none}#side.c .sh{justify-content:center;padding:12px 0}#side.c .tg{transform:rotate(180deg)}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 8px 14px;font-weight:900;color:var(--ink2)}
+.tg{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--br);cursor:pointer;font-weight:900;line-height:1}
+.sl{overflow:auto;padding:0 8px 8px;flex:1 1 0;min-height:120px}
+/* M5.5：左側 = 概覽（所選元件＋課程簡介）→ 訊號流程（可收合）→ 元件清單（獨立捲動）。概覽區最多占 55% 高度，超過時自己捲動 */
+#ov{flex:0 1 auto;max-height:55%;overflow:auto;padding:0 8px 6px;border-bottom:1px solid var(--line)}
+.sh2{font-size:12px;font-weight:900;color:var(--ink2);padding:8px 14px 2px}
+.ovc{padding:9px 10px}.ovc .ch b{font-size:14px}
+.dsc{font-size:12px;margin:5px 0 4px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.dsc.full{display:block}
+.dmo{border:0;background:none;color:var(--br);font-size:11px;font-weight:700;cursor:pointer;padding:0}
+.ovc .met{padding:3px 8px;margin-top:3px;font-size:11px}.ovc .met b{font-size:11px}
+#ov .xp{margin:6px 0;padding:0 8px 6px}#ov .xp summary{font-size:12px;padding:7px 0 3px}#ov .note{margin:4px 0 2px;font-size:12px}
+.sgb{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:7px 9px;margin:6px 0 2px}
+.sgh{display:flex;align-items:center;justify-content:space-between;gap:6px}.sgh b{color:var(--ink2);font-size:12.5px;min-width:0}.sgh .pwb{padding:3px 11px;font-size:12px;white-space:nowrap;flex:none}
+#rst{display:block;font-size:11px;margin:4px 0 0;line-height:1.4}
+.sgb .xp{margin:6px 0 0;background:var(--sf)}.sgb .stl .st{font-size:12px;padding:4px 8px}.sgb .rw{font-size:11px}.sgb .bits i{height:22px}.sgb .lgd{font-size:10.5px}
+.gh{font-size:11px;letter-spacing:.1em;color:var(--mut);font-weight:700;padding:10px 6px 4px}
+.it{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;cursor:pointer}.it:hover{background:var(--paper)}.it.on{background:var(--br);color:#fff}
+.it .n{flex:1;min-width:0}.it b{display:block;font-size:13px}.it small{display:block;font-size:10.5px;opacity:.7}
+.eye{border:0;background:none;color:inherit;opacity:.65;cursor:pointer;padding:3px;display:grid}
+#vp{grid-area:v;position:relative;margin:0 12px;border-radius:14px;overflow:hidden;min-height:0}
+#cv{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#labs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;font-size:10px;line-height:14px;padding:0 6px 0 5px;border-radius:7px;background:var(--sf);opacity:.93;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.lb::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--teal);margin-right:4px;vertical-align:1px}
+.lb.on{background:var(--br);color:#fff;border-color:var(--br);opacity:1}
+.pill{position:absolute;left:12px;top:12px;background:var(--sf);border:1px solid var(--line);border-radius:12px;padding:6px 12px;font-weight:700;color:var(--ink2);max-width:60%}
+.chip{position:absolute;left:12px;top:50px;font-size:11.5px;background:var(--sf);border:1px solid var(--line);border-radius:99px;padding:1px 10px;color:var(--ink2)}
+.chip::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-right:6px}
+.hint{position:absolute;right:12px;top:14px;font-size:11px;color:var(--mut)}
+/* M5.5：3D 左下 = 「分離圖層」與「抬升所選層」兩個小滑桿水平並排；3D 寬度不足（#vp.nar）時改為橫跨底部，工具列移到其上方 */
+#ex{position:absolute;left:12px;bottom:12px;display:flex;gap:6px;z-index:2}
+#ex .sx{width:150px;background:var(--sf);border:1px solid var(--line);border-radius:12px;padding:5px 10px 2px;font-size:11px}
+#ex .sx div{display:flex;justify-content:space-between;gap:6px;color:var(--mut);font-weight:700;white-space:nowrap}#ex .sx span{overflow:hidden;text-overflow:ellipsis}#ex b{color:var(--acc)}
+#ex .sx.dis{opacity:.6}#ex .sx.dis b{color:var(--mut)}
+input[type=range]{width:100%;accent-color:var(--acc);margin:4px 0}
+#tb{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:2}
+#tb>div{display:flex;gap:6px}#tb .tr{order:-1}
+#vp.nar #ex{right:12px}#vp.nar .hint{display:none}#vp.nar #ex .sx{flex:1;width:auto;min-width:0}#vp.nar #tb{bottom:var(--exh,64px)}
+/* M5.5：剖面／規格參考卡（非模態、小型、可捲動；與原理圖互斥，同時只開一個） */
+#ref{position:absolute;right:12px;bottom:var(--bb,90px);z-index:3;width:min(340px,calc(100% - 24px));max-height:min(440px,calc(100% - var(--bb,90px) - 56px));overflow:auto;background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:8px 12px 10px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+#ref[hidden]{display:none}#ref .shd{position:sticky;top:-8px;background:var(--sf);padding:4px 0;z-index:1}#ref .note{margin:8px 2px 0;font-size:11.5px}#ref .sg{margin:10px 0 5px}
+#tb button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--sf);color:var(--br);cursor:pointer;display:grid;place-items:center;font-size:15px;font-weight:700;padding:0}
+#tb .on{background:var(--br);color:#fff}
+#panel{grid-area:p;margin-right:12px;background:var(--sf);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#pb{overflow:auto;padding:4px 14px 14px;flex:1 1 0;min-height:140px}
+/* M5.5：右側上半 = 固定可見的五項鏈路效能看板（#dash），下半 = 三組控制（#gtab 切換、#pb 捲動）。捲動 #pb 時看板不動 */
+#dash{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;padding:10px 12px 8px;border-bottom:1px solid var(--line);background:var(--sf)}#dash>*{flex:none}
+.dh{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.dh b{font-size:13px;font-weight:900;color:var(--ink2)}.dh i{font-style:normal;font-size:10px;font-weight:700;color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:0 7px}
+.d5{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.dt{position:relative;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:5px 26px 5px 9px;min-width:0;cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.dt:hover{border-color:var(--br)}.dt.on{border-color:var(--br);box-shadow:inset 0 0 0 1px var(--br)}.dt.w2{grid-column:1 / -1}
+.dt small{display:block;font-size:10.5px;font-weight:900;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt b{display:block;font:900 16px/1.25 ui-monospace,Menlo,monospace;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt .ds{display:block;font-size:10px;color:var(--mut);line-height:1.35}
+.dt em{position:absolute;right:6px;top:5px;width:16px;height:16px;border-radius:50%;border:1px solid var(--line);font:700 10px/14px serif;font-style:italic;text-align:center;color:var(--br);background:var(--sf)}
+.dt.on em{background:var(--br);color:#fff;border-color:var(--br)}
+.dbar{display:block;height:4px;border-radius:2px;background:var(--track);margin-top:4px;overflow:hidden}.dbar i{display:block;height:100%;background:var(--br);transition:width .25s}
+.dbar i.q-good{background:#2e9d6a}.dbar i.q-warn{background:#d08a1a}.dbar i.q-bad{background:#d9534f}
+.dt b.chg{animation:chg .6s ease-out}@keyframes chg{from{color:var(--acc)}}
+#dst{font-size:10.5px;color:var(--mut);margin:5px 0 0;line-height:1.4}
+#dx{margin-top:7px;border:1px solid var(--br);border-radius:12px;background:var(--card);max-height:min(42vh,340px);overflow:auto;padding:0 10px 8px}#dash>#dx{flex:0 1 auto;min-height:90px}
+#dx[hidden]{display:none}#dx .shd{position:sticky;top:0;background:var(--card);padding:6px 0 4px;z-index:1}#dx .shd b{font-size:13px}
+.gtab{margin:8px 12px 6px}
+.cmp{width:100%;border-collapse:separate;border-spacing:0;font-size:11.5px;margin:6px 0;table-layout:fixed}
+.cmp th,.cmp td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.cmp th:first-child,.cmp td:first-child{text-align:left;color:var(--mut);font-weight:700;width:31%}
+.cmp td{font:700 11px ui-monospace,Menlo,monospace;color:var(--ink2)}.cmp td small{display:block;font:400 10px inherit;color:var(--mut)}
+.cmp thead th{font-weight:900;color:var(--ink2)}.cmp thead th button{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:2px 6px;cursor:pointer;font-weight:900;color:var(--ink2);width:100%}
+.cmp thead th small{display:block;font-size:9.5px;font-weight:700;color:var(--mut);margin-top:2px}
+.cmp .on{background:var(--track)}.cmp thead th.on button{background:var(--br);border-color:var(--br);color:#fff}.cmp tr:last-child td{border-bottom:0}
+.card{border:1px solid var(--line);border-left:4px solid var(--br);border-radius:12px;padding:12px;background:var(--card)}
+.ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.ch b{font-size:15px;color:var(--ink2)}.ch i{font-style:normal;font-size:11px;font-weight:700;color:var(--mut)}
+.card p{margin:6px 0 8px}
+.met{display:flex;justify-content:space-between;gap:10px;background:var(--paper);border-radius:8px;padding:5px 10px;margin-top:5px;font-size:12px}
+.met span{color:var(--mut);font-weight:700}.met b{color:var(--ink2);font:700 12px ui-monospace,Menlo,monospace;text-align:right}
+.met.lf{background:none;padding:8px 0 0;border-top:1px solid var(--line);margin-top:9px}.met.lf b{color:var(--br)}
+.note{font-size:12.5px;color:var(--ink);margin:12px 2px 0}
+.sg{font-size:10.5px;letter-spacing:.14em;font-weight:900;color:var(--mut);margin:14px 0 6px}
+.tbl{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:2px 12px}
+.tbl div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}.tbl div:last-child{border:0}
+.tbl span{color:var(--mut)}.tbl b{font:700 12px ui-monospace,Menlo,monospace;color:var(--ink2);text-align:right}
+.xs{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:12px}.xs g{cursor:pointer}.xs g:hover{opacity:.8}.xs .sel>*{stroke:var(--acc);stroke-width:1.6}.xs text{fill:#fff;font:700 10px sans-serif;text-anchor:middle;pointer-events:none}
+.h2{font-weight:900;color:var(--ink2);margin:2px 0 8px}
+.pwb{border:1px solid var(--line);background:var(--paper);color:var(--mut);border-radius:99px;padding:5px 16px;font-weight:700;cursor:pointer}.pwb.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.rw{display:block;font-size:11.5px;font-weight:700;color:var(--mut);margin:9px 0 3px}
+.bits{display:flex;gap:4px}.bits i{flex:1;height:26px;border-radius:5px;background:var(--track);display:grid;place-items:center;font:700 11px ui-monospace,monospace;font-style:normal;color:var(--mut)}
+.bits.in i{cursor:pointer}.bits .h{background:var(--acc);color:#fff}.bits.lt .h{background:var(--mod);color:#fff}.bits.lt .l{background:var(--track);color:var(--mod)}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+/* M4-A：訊號流原理圖浮層、運行狀態。三種訊號外觀：電＝橘（--acc，方塊）、連續光＝青（--teal，實線）、調變光＝紫（--mod，亮暗虛線） */
+:root{--mod:#7c4dff}@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--mod:#b79bff}}:root[data-theme=dark]{--mod:#b79bff}
+#tb .wide{width:auto;padding:0 12px 0 10px;border-radius:99px;gap:5px;display:flex;font-size:12px}
+#runb{position:absolute;left:12px;top:80px;font-size:11.5px;font-weight:700;background:var(--sf);border:1px solid var(--acc);border-radius:99px;padding:1px 10px;color:var(--ink2);max-width:70%}
+#runb::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-right:6px;animation:blink 1s infinite alternate}
+@keyframes blink{to{opacity:.25}}
+#sch{position:absolute;left:12px;right:12px;bottom:var(--bb,90px);z-index:3;background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:8px 12px 10px;box-shadow:0 6px 24px rgba(0,0,0,.14);max-height:calc(100% - var(--bb,90px) - 80px);overflow:auto}
+#sch[hidden],#runb[hidden]{display:none}
+.shd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.shd b{color:var(--ink2);font-size:14px}.shd .tag{font-size:10.5px;color:var(--mut);font-weight:700}.shd .sp{flex:1}
+.shd .x{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--br);cursor:pointer;font-weight:900;padding:0}
+.sv{width:100%;height:auto;max-height:250px;display:block;margin:4px 0}
+.sv text{font-family:inherit;text-anchor:middle;fill:var(--ink2);pointer-events:none}
+.sv .t1{font-size:10.5px;font-weight:900}.sv .t2{font-size:8.5px;fill:var(--mut)}.sv .lt{font-size:9px;font-weight:700;fill:var(--mut)}.sv .bl{text-anchor:start;font-size:9.5px;font-weight:900;letter-spacing:.05em}.sv .st{text-anchor:start}
+.sv .bd{fill:none;stroke-width:1.2;stroke-dasharray:5 4}.sv .bd.p{stroke:var(--br)}.sv .bd.r{stroke:var(--teal)}
+.sn{cursor:pointer}.sn rect{fill:var(--card);stroke-width:1.6}.sn.e rect{stroke:var(--acc)}.sn.o rect{stroke:var(--teal)}.sn.x rect{stroke:var(--mod)}.sn:hover rect{fill:var(--paper)}
+.lk{fill:none;stroke-width:2.4;cursor:pointer}.lk.e{stroke:var(--acc)}.lk.c{stroke:var(--teal);stroke-width:5;stroke-opacity:.8}.lk.m{stroke:var(--mod);stroke-width:3.4;stroke-dasharray:9 5}
+.ah-e{fill:var(--acc)}.ah-c{fill:var(--teal)}.ah-m{fill:var(--mod)}
+.wv{fill:none;stroke-width:1.5}.wv.e{stroke:var(--acc)}.wv.c{stroke:var(--teal);stroke-width:3}.wv.m rect{fill:var(--mod);stroke:none}
+#sch:not(.run) .wv{opacity:.3}
+.run .sn,.run .lk,.run .wv{transition:opacity .3s}
+.run .sn:not(.act):not(.done):not(.always),.run .lk:not(.act):not(.done):not(.always),.run .wv:not(.act):not(.done):not(.always){opacity:.3}
+.sn.act rect{stroke-width:3.4;fill:var(--track);animation:pz .8s ease-in-out infinite alternate}.sn.done rect{stroke-width:2.4}.sn.pv rect{stroke-width:3;fill:var(--track)}
+@keyframes pz{to{stroke-opacity:.35}}
+.run .lk.act{stroke-width:4;stroke-dasharray:8 5;animation:flow .5s linear infinite}.run .lk.c.always{stroke-dasharray:none;animation:none}.run .lk.c.act{stroke-width:6}
+@keyframes flow{to{stroke-dashoffset:-13}}
+.sci{font-size:12px;color:var(--ink);background:var(--paper);border-radius:8px;padding:6px 10px}
+.rs{display:inline-block;font-weight:900;color:var(--mut);margin-right:8px}.rs.on{color:var(--acc)}
+.lgd{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:11px;color:var(--ink);margin:6px 0}
+.lgd i{display:inline-block;vertical-align:middle;margin-right:5px}.ke{width:9px;height:9px;background:var(--acc)}.kc{width:18px;height:5px;border-radius:3px;background:var(--teal)}.km{width:18px;height:4px;background:repeating-linear-gradient(90deg,var(--mod) 0 6px,transparent 6px 9px)}
+.scv{font-size:11px;color:var(--mut);margin:6px 0 0}
+.rr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stl{display:grid;gap:4px;margin:8px 0}
+.stl .st{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:5px 10px;cursor:pointer;font-size:12.5px}
+.stl em{font-style:normal;font-weight:900;color:var(--mut);min-width:1em}.stl b{color:var(--ink2)}.stl u{text-decoration:none;font-size:10px;color:var(--teal);border:1px solid var(--teal);border-radius:99px;padding:0 5px;margin-left:4px;font-weight:700}
+.stl small{display:none;font-size:12px;color:var(--ink);margin-top:2px;line-height:1.5}.stl .act small,.stl .pv small{display:block}
+@media(max-width:600px){#sch{max-height:calc(100% - var(--bb,90px) - 60px);padding:6px 8px}#sch .shd .tag,#sch .lgd,#sch .scv{display:none}.sci{font-size:11.5px}}
+.stl .act{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc);background:var(--card)}.stl .act em{color:var(--acc)}.stl .done em{color:var(--acc)}.stl .pv{border-color:var(--br)}
+/* M4-B：光學實驗（子分頁、摺疊區塊、即時圖、功率瀑布） */
+.seg{display:flex;gap:3px;background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:3px;margin:10px 0 6px}
+.seg button{flex:1;border:0;background:none;border-radius:99px;padding:5px 2px;font-weight:700;font-size:12px;color:var(--mut);cursor:pointer}.seg .on{background:var(--br);color:#fff}
+.xp{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:8px 0;padding:0 10px 8px}
+.xp summary{cursor:pointer;font-weight:900;color:var(--ink2);padding:9px 0 4px;display:flex;align-items:baseline;gap:6px;list-style:none;font-size:13px}
+.xp summary::-webkit-details-marker{display:none}.xp summary::before{content:'▸';color:var(--br)}.xp[open] summary::before{content:'▾'}
+.xp summary .sp{flex:1}.xp summary em{font:700 11px ui-monospace,monospace;font-style:normal;color:var(--mut);white-space:nowrap}
+.xv{width:100%;display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin:6px 0}
+.xv text{font-family:inherit;font-size:9px;fill:var(--mut)}.xv .tk{font-weight:700;fill:var(--ink2)}
+label.rw b{float:right;font:700 11.5px ui-monospace,monospace;color:var(--ink2)}
+input[type=range]:disabled{opacity:.4}
+.cps{display:grid;gap:4px;margin:4px 0}.cps button{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:4px 9px;cursor:pointer;color:var(--ink);font-size:12px}
+.cps button b{display:block;color:var(--ink2)}.cps button small{color:var(--mut);font-size:10.5px}.cps .on{border-color:var(--br);box-shadow:inset 3px 0 0 var(--br);background:var(--card)}
+.xrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 2px}.xrow .pwb{padding:4px 12px;font-size:12px}
+.xs2{font-size:11.5px;color:var(--mut);margin:6px 0 0;line-height:1.55}
+.xmsg{font-size:11.5px;font-weight:700;color:var(--ink2)}
+.wf{display:grid;gap:3px;margin:6px 0}.wf div{display:grid;grid-template-columns:minmax(0,1fr) 64px 50px;gap:6px;align-items:center;font-size:11.5px}
+.wf span{color:var(--mut)}.wf i{display:block;height:8px;border-radius:4px;background:var(--br);min-width:2px}.wf i.hot{background:#d9534f}.wf b{font:700 11px ui-monospace,monospace;color:var(--ink2);text-align:right}
+.wft{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--ink2);border-top:1px solid var(--line);padding-top:5px;margin-top:4px}
+.q-good{color:#2e9d6a!important}.q-warn{color:#d08a1a!important}.q-bad{color:#d9534f!important}
+.sn.bad rect{stroke:#d9534f!important;stroke-dasharray:5 3}
+/* M7-A 故障定位：臨界＝黃虛線框；原因列在原理圖下方（#scf） */
+.sn.warn:not(.bad) rect{stroke:#d08a1a!important;stroke-dasharray:5 3}
+.run .sn.bad:not(.act):not(.done),.run .sn.warn:not(.act):not(.done){opacity:.8}
+.flt{font-size:11.5px;color:var(--ink);border:1px dashed #d9534f;border-radius:8px;padding:5px 10px;margin-top:6px;display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.flt.ok{border-color:var(--line);color:var(--mut)}.flt b{color:#d9534f}.flt .fi{font-weight:900}.flt .fr{color:var(--ink)}.flt small{flex-basis:100%;color:var(--mut);font-size:10.5px}
+.sv .lv{font-size:9px;font-weight:900;fill:var(--br)}.sv .lv.q-good{fill:#2e9d6a}.sv .lv.q-warn{fill:#d08a1a}.sv .lv.q-bad{fill:#d9534f}
+/* M4-C：效能摘要（速率選擇＋四格指標）、鏈路效能子頁（通道、損耗、功耗、延遲、眼圖） */
+.seg button{white-space:nowrap;padding:5px 3px;letter-spacing:-.01em}
+.kpi{padding:9px 11px;margin:10px 0 0}.seg.rt{margin:0 0 6px}.seg sup{font-size:9px}
+.cfr{display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--mut);font-weight:700}.cfr .pwb{padding:3px 10px;font-size:11.5px}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.kt{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:5px 9px;cursor:pointer;text-align:left;color:var(--ink);min-width:0;font:inherit}.kt:hover{border-color:var(--br)}
+.kt small{display:block;font-size:10.5px;font-weight:700;color:var(--mut)}.kt b{display:block;font:900 15px ui-monospace,Menlo,monospace;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kt span{display:block;font-size:10.5px;color:var(--mut);line-height:1.35}
+.wf4,.lt4,.ppl{display:grid;gap:3px;margin:6px 0}
+.wf4 div{display:grid;grid-template-columns:minmax(0,1fr) 40px 52px 60px;gap:5px;align-items:center;font-size:11px}
+.lt4 div{display:grid;grid-template-columns:minmax(0,1fr) 62px 64px;gap:5px;align-items:center;font-size:11px}
+.ppl div{display:grid;grid-template-columns:10px minmax(0,1fr) 58px 36px;gap:6px;align-items:center;font-size:11.5px}
+.wf4 span,.lt4 span,.ppl span{color:var(--mut)}.wf4 i,.lt4 i{display:block;height:8px;border-radius:4px;background:var(--br);min-width:2px}.wf4 i.hot{background:#d9534f}.lt4 i{background:var(--teal)}.lt4 i.na{background:none;border:1px dashed var(--mut)}
+.wf4 b,.lt4 b,.ppl b{font:700 11px ui-monospace,monospace;color:var(--ink2);text-align:right;white-space:nowrap}.wf4 .hd b,.wf4 .hd span{font:700 10px inherit;color:var(--mut)}
+.ppl i{width:10px;height:10px;border-radius:3px}.met b[id^=pe],.met b[id^=pc],.met b[id^=pp],.met b[id^=pt]{white-space:nowrap}
+.elb{border:1px dashed var(--acc);border-radius:9px;padding:0 8px 6px;margin:8px 0}
+.stk{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:6px 0;background:var(--track)}.stk i{display:block;height:100%}
+.c-ser{background:var(--acc)}.c-drv{background:var(--br)}.c-las{background:var(--teal)}.c-heat{background:var(--mod)}
+.la{stroke-width:1.6}.la.e{stroke:var(--acc)}.la.m{stroke:var(--mod);stroke-dasharray:6 3}.ln.run .la{animation:flow .6s linear infinite}.ln.run .la.e{stroke-dasharray:4 2}
+.eyw{position:relative}.eyw.off svg{opacity:.62}.ey .tr{fill:none;stroke:var(--mod);stroke-opacity:.35;stroke-width:1}
+.swp{fill:var(--acc);fill-opacity:0}.eyw.run .swp{fill-opacity:.13;animation:swp 1.8s linear infinite}@keyframes swp{from{transform:translateX(0)}to{transform:translateX(250px)}}
+@media(max-width:900px){body{overflow:auto}#app{display:flex;flex-direction:column;height:auto;min-height:100%}#vp{order:1;height:62vh;flex:none;margin:0 8px}#course{order:2}#panel{order:3;margin:8px}#side{order:4;width:auto!important;margin:0 8px 12px}.hint{display:none}
+ /* M5.5 手機：看板黏在畫面頂端（捲動控制項時仍看得到五項結果），改為一列五格精簡顯示 */
+ #panel{overflow:visible}#dash{position:sticky;top:0;z-index:5;border-radius:14px 14px 0 0;box-shadow:0 4px 10px rgba(0,0,0,.06)}#pb{overflow:visible;flex:none;min-height:0}
+ .d5{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.dt{padding:4px 5px}.dt.w2{grid-column:auto}.dt .ds,.dt em,.dt .ksc,#dst{display:none}.dt b{font-size:11.5px;white-space:normal;line-height:1.2}.dt small{font-size:10px}#dx{max-height:45vh}
+ #ov{max-height:none}#side .sl{max-height:50vh;flex:none}}
+@media(min-width:901px) and (max-height:720px){.dt .ds{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dst{display:none}.d5{gap:4px}.dt b{font-size:15px}}
+</style>
+</head>
+<body>
+<div id="app" class="okgrid">
+<header>
+ <div class="logo"><div class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></div><div><h1>CHIP PACKAGING <b>入門</b></h1><div class="sub" id="sb"></div></div></div>
+ <div class="hr"><span class="badge" id="bd"></span><div class="lang"><button data-l="zh">中</button><button data-l="en">EN</button></div></div>
+</header>
+<aside id="side"><div class="sh"><span id="st1"></span><button class="tg" id="tg" title="收合 / Collapse">‹</button></div><div id="ov"><div id="ovp"></div><div id="ovs"></div></div><div class="sh2" id="st2"></div><div class="sl" id="sl"></div></aside>
+<main id="vp"><canvas id="cv"></canvas><div id="labs"></div><div class="pill" id="pill"></div><div class="chip" id="chip"></div><div class="hint" id="hint"></div><div id="runb" hidden></div>
+ <div id="sch" hidden></div>
+ <div id="ref" hidden></div>
+ <div id="ex"><div class="sx"><div><span id="exl"></span><b id="exv">35%</b></div><input type="range" id="exr" min="0" max="100" value="35"></div><div class="sx" id="lfx"><div><span id="lfl"></span><b id="lv">0%</b></div><input type="range" id="lf" min="0" max="100" value="0"></div></div>
+ <div id="tb"><div><button>↺</button><button>+</button><button>−</button><button id="au">▶</button><button class="on"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8.5V2h6.5L14 7.5 7.5 14z"/><circle cx="5" cy="5" r="1"/></svg></button></div><div class="tr"><button id="scb" class="wide"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="5" height="4" rx="1"/><rect x="10" y="10" width="5" height="4" rx="1"/><path d="M6 4h3.5v8H10"/></svg><span class="tx"></span></button><button id="rfs" class="wide" data-ref="sec"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5h14M1 8h14M1 11h14"/><rect x="5" y="2" width="6" height="3"/></svg><span class="tx"></span></button><button id="rfp" class="wide" data-ref="spec"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h6M5 12h3"/></svg><span class="tx"></span></button></div></div></main>
+<section id="panel"><div id="dash"></div><div class="seg gtab" id="gtab"></div><div id="pb"></div></section>
+<nav id="course"></nav>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="core/ui.js"></script>
+<script>
+const $=s=>document.querySelector(s),T=THREE;
+/* ---------- 資料（數值參考 NVIDIA/TSMC 公開資料與 ECTC、Hot Chips 封裝文獻；教學示意） ---------- */
+const P=[
+{i:'substrate',g:0,z:'封裝基板',e:'Package Substrate',dz:'多層有機基板是封裝的骨架：內部銅走線與導通孔把訊號與電力扇出到 PCB。',de:'The multi-layer organic substrate is the package’s skeleton; buried copper traces and vias fan signals and power out to the PCB.',m:[['材料','Material','ABF / BT 樹脂'],['結構','Structure','多層增層 Build-up'],['功能','Role','扇出 Fan-out']]},
+{i:'interposer',g:0,z:'電氣中介層',e:'Electrical Interposer',dz:'矽中介層以微凸塊連接運算晶片與光學引擎，細線寬 RDL 與 TSV 在毫米內重新分配高速訊號，是 CPO 電氣路徑縮短的關鍵。',de:'The silicon interposer joins the ASIC and optical engines through microbumps; fine RDL traces and TSVs reroute high-speed signals within millimeters.',m:[['材料','Material','Si + Cu TSV'],['TSV 孔徑','TSV diameter','≈ 5–12 µm'],['走線','Routing','RDL（µm 級）']]},
+{i:'die',g:0,z:'運算晶片',e:'Compute Die',dz:'先進製程的交換／運算 ASIC，負責封包交換與運算，是整個封裝的主要熱源。',de:'The advanced-node switch / compute ASIC handles packet switching and compute — the package’s main heat source.',m:[['角色','Role','交換 · 運算'],['製程','Node','先進邏輯 Advanced logic'],['連接','Joint','µBump → 中介層']]},
+{i:'ubump',g:0,z:'微凸塊陣列',e:'Microbump Array',dz:'晶片與中介層之間的 Cu 柱＋焊料帽微凸塊（µBump），間距約 30–60 µm，取代打線，密度與頻寬大幅提升。',de:'Cu-pillar microbumps (µBump) join dies to the interposer at ≈ 30–60 µm pitch, replacing wire bonds with far higher density.',m:[['間距','Pitch','≈ 30–60 µm'],['結構','Structure','Cu 柱 + SnAg 焊帽'],['位置','Location','晶片 ↔ 中介層']]},
+{i:'c4',g:0,z:'C4 覆晶凸塊',e:'C4 Bump',dz:'中介層與基板之間較粗的覆晶凸塊（C4），間距約 150–200 µm；它和微凸塊、BGA 焊球、TSV 是四種不同的東西。',de:'Coarser flip-chip C4 bumps join interposer to substrate at ≈ 150–200 µm pitch — distinct from microbumps, BGA balls and TSVs.',m:[['間距','Pitch','≈ 150–200 µm'],['位置','Location','中介層 ↔ 基板'],['焊料','Solder','無鉛 Pb-free']]},
+{i:'copper',g:0,z:'基板內層銅',e:'Inner Copper Layers',dz:'埋在基板內的銅層構成電源平面與高速走線；拉動分離圖層可看到它從基板中被抽出。',de:'Buried copper layers form power planes and high-speed routes; pull the explode slider to draw them out of the substrate.',m:[['銅厚','Thickness','≈ 12–18 µm'],['功能','Function','電源 · 走線 Power · Routing']]},
+{i:'underfill',g:0,z:'底部填充膠',e:'Underfill',dz:'填在凸塊周圍的環氧樹脂膠，分散熱膨脹造成的應力，避免凸塊接點被熱循環拉裂。',de:'Epoxy flowed around the bumps spreads thermal-expansion stress so thermal cycling cannot crack the joints.',m:[['材料','Material','環氧樹脂 Epoxy'],['功能','Function','應力分散 Stress relief']]},
+{i:'lid',g:0,z:'散熱蓋',e:'Heat Spreader Lid',dz:'金屬蓋把熱均勻導向散熱器；CPO 封裝常採開窗設計，讓光學引擎與光纖能對位。預設隱藏，可用眼睛圖示打開。',de:'The metal lid spreads heat toward the heat sink; CPO packages often use a windowed lid so engines and fibers can align. Hidden by default.',m:[['材料','Material','Cu / Ni 鍍層'],['功能','Function','均熱 Heat spreading']]},
+{i:'bga',g:0,z:'焊球陣列',e:'Solder Balls',dz:'封裝底部的 BGA 焊球（SAC305 無鉛）把整個封裝焊到 PCB，承受熱循環的剪應力，是可靠度測試的重點。',de:'Lead-free SAC305 BGA balls solder the package to the PCB and absorb thermal-cycling shear — a reliability-test focus.',m:[['合金','Alloy','SAC305 (Sn-Ag-Cu)'],['球徑','Ball','≈ 0.4–0.6 mm'],['間距','Pitch','≈ 0.8–1.0 mm']]},
+{i:'engine',g:1,z:'光學引擎',e:'Optical Engine',dz:'光學引擎把電訊號調變成光、再把光轉回電：EIC（電子晶片）堆疊在 PIC（光子晶片）上，貼在 ASIC 兩側，讓光在離晶片幾毫米處進出封裝。',de:'The optical engine turns electrical signals into light and back: an EIC (electronic IC) is stacked on a PIC (photonic IC) beside the ASIC, so light enters and leaves millimeters from it.',m:[['通道','Channels','8 × 200 Gb/s PAM4'],['單引擎','Per engine','1.6 Tb/s'],['堆疊','Stacking','EIC on PIC · 3D']]},
+{i:'rings',g:1,z:'微環調變器 MRM',e:'Microring Modulators (MRM)',dz:'微環共振器（MRR）只有數～十數 µm，只與特定波長共振；本課把它當調變器使用，所以稱為微環調變器（MRM）：電壓移動共振點，讓通過的光變亮或變暗。微環旁的金屬環是加熱器，用來把共振拉回工作點（見右側「光學調校」）。',de:'A microring resonator (MRR) is only micrometers wide and resonates at one wavelength; used as a modulator in this course it is called a microring modulator (MRM): voltage shifts the resonance to brighten or dim the light. The metal ring beside it is a heater that pulls the resonance back to the operating point (see “Optics tuning” on the right).',m:[['角色','Role','MRM 調變（本課）'],['尺寸','Size','數～十數 µm'],['速率','Rate','200 Gb/s PAM4']]},
+{i:'wg',g:1,z:'矽波導',e:'Silicon Waveguides',dz:'蝕刻在矽上的光通道，是光的「印刷電路走線」，把光從耦合口導向微環與光偵測器。',de:'Waveguides etched in silicon are the optical counterpart of PCB traces, guiding light from the coupler to the rings and photodetectors.',m:[['材料','Material','Si（SOI）/ SiN'],['角色','Role','導光 Guide light']]},
+{i:'laser',g:1,z:'外接雷射',e:'CW Laser Supply',dz:'外接雷射源（ELS）以連續波（CW）雷射供光。雷射怕熱，所以放在封裝外、遠離熱源，可獨立抽換，一組可供應多個光學引擎。',de:'The external laser source (ELS) supplies continuous-wave light. Lasers dislike heat, so it sits outside the package, is field-replaceable, and feeds several engines.',m:[['雷射','Laser','CW-DFB'],['波長','λ','O-band ≈ 1310 nm'],['維修','Service','可現場抽換']]},
+{i:'fibers',g:1,z:'光纖陣列',e:'Fiber Array',dz:'單模光纖經光纖陣列單元（FAU）接到光學引擎：連續光由 ELS 沿光纖送入，調變後的訊號由另一組光纖送往面板的 MPO 連接器。',de:'Single-mode fibers attach through a fiber array unit (FAU): CW light arrives from the ELS, and modulated signals leave toward front-panel MPO connectors.',m:[['光纖','Fiber','單模 SMF'],['雷射輸入','Laser inputs','每引擎 2 條（1 備援）'],['連接','Connector','FAU · MPO']]}
+];
+const SP=[[['晶片↔中介層','Die–Interposer','µBump ≈ 30–60 µm'],['中介層↔基板','Interposer–Substrate','C4 ≈ 150–200 µm'],['基板↔PCB','Substrate–PCB','BGA ≈ 0.8–1.0 mm'],['穿過中介層','Through interposer','TSV ≈ 5–12 µm'],['焊料','Solder','Pb-free SnAg / SAC305'],['免焊料方案','Solderless option','Hybrid bonding < 10 µm']],
+[['單引擎','Per engine','8 × 200G PAM4 = 1.6T'],['調變器','Modulator','Microring (MRM)'],['雷射','Laser','External CW-DFB (ELS)'],['雷射輸入光纖','Laser fibers','2 / engine (1 backup)'],['EIC ↔ PIC','EIC ↔ PIC','3D stack (COUPE · SoIC-X)'],['電路徑','Electrical path','cm → mm'],['每 1.6T 埠功耗','Power / 1.6T port','≈ 9 W vs 30 W']]];
+const D={zh:{list:'元件清單',u:' 項',sub:'探索 · 理解 · 動手',bd:'SEMICONDUCTOR ADVANCED PACKAGING · 互動 3D 教材',g:['封裝結構','光電元件'],ex:'分離圖層',hint:'拖曳旋轉 · 滾輪縮放 · 點零件看說明',tabs:['概覽','剖面圖','光電訊號','規格'],lift:'抬升所選層',tb:['重設視角','放大','縮小','自動展示','標籤開關','原理圖：CPO 訊號流（再按一次關閉）','剖面圖參考卡（再按一次關閉）','規格參考卡（再按一次關閉）'],scB:'原理圖',sel:'已選取',
+crs:'課程 3 · CPO 共同封裝光學',
+note:'封裝是晶片的「盔甲與翻譯官」：保護裸晶、導出熱量、穩定供電，並把奈米級接點翻譯成 PCB 能焊接的毫米級焊球。CPO（共封裝光學）更進一步，把光學引擎放進同一個封裝，電氣路徑從數公分縮短到數毫米；NVIDIA 公布每個 1.6 Tb/s 埠的功耗約從 30 W 降到 9 W。',
+xl:'點圖中任一層可選取。微凸塊 ≈ 30–60 µm｜C4 ≈ 150–200 µm｜BGA 球 ≈ 0.8–1.0 mm｜TSV ≈ 5–12 µm',
+sg:['2.5D 封裝互連 INTERCONNECT','CPO 光學 OPTICS'],src:'數值為教學示意；參考 NVIDIA / TSMC 公開資料與 ECTC、Hot Chips 封裝文獻。',
+h1:'運行 · 電 → 光 → 電',run:'▶ 運行',stop:'■ 停止',running:'運行中',stopped:'已停止',step:'步驟',rw:['① 電訊號 · ASIC 資料 → EIC 驅動（點擊切換 0 / 1）','② 調變光 · MRM 把資料寫進連續光（亮 ● / 暗 ○）','③ 遠端還原電訊號 · Ge PD → TIA'],
+s0:'已停止：雷射未供光、沒有資料傳送。按「▶ 運行」開始；也可先點任一步驟閱讀說明。',
+st:[['ASIC 送出資料','交換晶片 ASIC 的 SerDes 把 0/1 資料以「電訊號」送出，經封裝內的短電氣互連（RDL／µBump；長度 L 由下方距離滑桿設定）傳到光引擎。ASIC 只處理電訊號，本身不發光。'],
+['EIC 驅動器','光引擎上的 EIC（電子晶片）接收資料，放大成足以推動調變器的驅動電壓擺幅，經 3D 堆疊送到下方 PIC（光子晶片）上的 MRM。'],
+['MRM 調變','外接雷射（ELS）持續送入不帶資料的連續光（CW），經光波導到達微環調變器（MRM）。驅動電壓移動微環的共振波長，讓通過的光變亮或變暗——資料就被「寫進」光裡。雷射只負責供光，調變由 MRM 完成。'],
+['FAU → 光纖','調變後的光沿波導到達光纖陣列單元（FAU），耦合進單模光纖，經面板連接器送往遠端設備。'],
+['遠端 Ge PD','（遠端接收端）光纖另一端的鍺（Ge）光偵測器吸收光：光亮時產生較大的光電流，光暗時較小。'],
+['遠端 TIA','（遠端接收端）跨阻放大器（TIA）把微小的光電流轉換成電壓訊號，0/1 資料還原成電訊號，交給接收端晶片處理。']],
+rx:'遠端 RX',rx3:'接收端只在原理圖中顯示',
+lg:['電訊號（橘・方塊）：銅走線上的電壓資料','連續光 CW（青・實線）：雷射供光，不帶資料','調變光（紫・亮/暗）：MRM 寫入資料後的光'],
+cav:'教學架構說明：本課以微環調變器（MRM）為代表案例，並非所有 CPO 都使用 MRM（也有馬赫-曾德調變器 MZM 等方案）。亮／暗脈衝是概念簡化，不代表實際調變格式（實際產品常用 PAM4 等多階調變）；波形沒有刻度，只示意定性變化。Ge PD 與 TIA 屬於光纖另一端的遠端接收設備，不是本地 CPO 發射端的元件。',
+sc:{t:'CPO 訊號流原理圖',tag:'教學架構：MRM 發射鏈 ＋ 遠端接收 · 概念示意',pkg:'CPO 封裝 · 本地發射端 TX',rx:'遠端接收端 RX',rx2:'示意 · 3D 未建模',out:'封裝外',hint:'點方塊：運行中跳到該步驟，停止時顯示說明 · Esc／✕ 關閉',cv:'注意：MRM 是本課選定的教學架構，並非所有 CPO 都用 MRM；亮／暗脈衝與波形為概念簡化（無刻度、非實際調變格式）；Ge PD、TIA 屬於遠端接收端。',
+ n:{asic:['ASIC','交換晶片 · 產生資料'],eic:['EIC 驅動器','資料 → 驅動電壓'],mrm:['MRM 微環調變器','用電壓調變光'],las:['CW 雷射 ELS','外接 · 只供光'],fau:['FAU','光纖陣列耦合'],pd:['Ge PD','光 → 光電流'],tia:['TIA','電流 → 電壓']},
+ l:{ic:'電氣互連',dv:'驅動電壓',cw:'光波導 · 連續光 CW',cw2:'功率恆定 · 不帶資料',wg:'波導',fb:'光纖 SMF',md:'亮／暗（概念簡化）',ph:'光電流',vo:'電壓輸出'}},
+h2:'距離 · ASIC 邊緣 ↔ 光引擎 EIC 的封裝內走線長度',edu:'教育級近似模型 · 趨勢示意，非產品規格 / 非 OIF 標準 / 非實測',mL:'走線長度 L〔滑桿定義〕',mIL:'電通道損耗 @{f} GHz〔C 教學假設〕',mD:'相對 2 mm 的損耗增量〔C〕',mE:'SerDes 能耗（2 mm = 100 %）〔C〕',mT:'電訊號延遲〔B 公式〕',mO:'光學損耗變化〔B〕',oz:'≈ 0 dB（不隨此滑桿）',
+dn:'L = 封裝基板／中介層上，ASIC 晶片邊緣到光引擎 EIC 的電走線長度（2–30 mm；3D 畫面為壓縮示意比例，並限制光引擎不超出基板）。電損耗 = 介面固定 1 dB + α·L，α ≈ 0.2 dB/mm（200G 通道、f_N ≈ 53 GHz 時；√f 導體項 + f 介電項，C 級教學假設；在「傳輸配置」改變每通道速率時 f_N 與 α 隨之改變）；SerDes 能耗 = 2.0 + 0.12 × 損耗 pJ/bit（C 級，只看相對趨勢，不是絕對瓦數）；延遲 6.5 ps/mm（B 級，εr≈4 近似）。光纖與 FAU 跟著光引擎移動，但光學損耗不隨此滑桿改變：電 dB 與光 dB 不能相加。CPO / NPO / 可插拔的差別在整體架構，不能只靠這個距離判斷；可插拔的數十公分 PCB 走線不在此滑桿範圍。'},
+en:{list:'Component List',u:' items',sub:'EXPLORE · UNDERSTAND · BUILD',bd:'SEMICONDUCTOR ADVANCED PACKAGING · INTERACTIVE 3D',g:['Package structure','Photonics'],ex:'Explode',hint:'Drag to orbit · Scroll to zoom · Click a part',tabs:['Overview','Section','Signal','Specs'],lift:'Lift selected layer',tb:['Reset view','Zoom in','Zoom out','Auto demo','Toggle labels','Schematic: CPO signal flow (click again to close)','Cross-section reference card (click again to close)','Specs reference card (click again to close)'],scB:'Schematic',sel:'Selected',
+crs:'Course 3 · CPO Co-Packaged Optics',
+note:'A package is a chip’s armor and translator: it protects the die, removes heat, steadies power, and turns nanometer-scale contacts into millimeter-scale balls a PCB can solder. CPO goes further by placing the optical engine in the same package, shortening the electrical path from centimeters to millimeters; NVIDIA reports about 30 W falling to 9 W per 1.6 Tb/s port.',
+xl:'Click any layer to select it. µBump ≈ 30–60 µm | C4 ≈ 150–200 µm | BGA ball ≈ 0.8–1.0 mm | TSV ≈ 5–12 µm',
+sg:['2.5D INTERCONNECT','CPO OPTICS'],src:'Values are teaching approximations drawn from public NVIDIA / TSMC material and ECTC / Hot Chips packaging papers.',
+h1:'Run · Electric → Light → Electric',run:'▶ Run',stop:'■ Stop',running:'Running',stopped:'Stopped',step:'Step',rw:['① Electrical · ASIC data → EIC drive (click to flip 0 / 1)','② Modulated light · MRM writes data onto CW light (bright ● / dim ○)','③ Recovered electrical at the far end · Ge PD → TIA'],
+s0:'Stopped: the laser supplies no light and no data is sent. Press “▶ Run” to start, or click any step to read about it first.',
+st:[['ASIC sends data','The switch ASIC’s SerDes sends 0/1 data as an electrical signal over a short in-package interconnect (RDL / µBump; length L set by the distance slider below) to the optical engine. The ASIC only handles electrical signals — it does not emit light.'],
+['EIC driver','The EIC (electronic IC) on the optical engine receives the data and amplifies it into a drive-voltage swing strong enough to push the modulator, passing through the 3D stack to the MRM on the PIC (photonic IC) below.'],
+['MRM modulates','The external laser (ELS) continuously feeds data-free continuous-wave (CW) light through a waveguide to the microring modulator (MRM). The drive voltage shifts the ring’s resonance, making the passing light brighter or dimmer — the data is “written” onto the light. The laser only supplies light; the MRM does the modulation.'],
+['FAU → fiber','The modulated light follows a waveguide to the fiber array unit (FAU), couples into single-mode fiber, and leaves through the front-panel connector toward the far-end device.'],
+['Far-end Ge PD','(Far-end receiver) A germanium photodetector at the other end of the fiber absorbs the light: bright light makes a larger photocurrent, dim light a smaller one.'],
+['Far-end TIA','(Far-end receiver) A transimpedance amplifier (TIA) turns the tiny photocurrent into a voltage, recovering the 0/1 data as an electrical signal for the receiving chip.']],
+rx:'Far-end RX',rx3:'receiver shown only in the schematic',
+lg:['Electrical (orange · squares): voltage data on copper','CW light (teal · solid): laser supply, carries no data','Modulated light (violet · bright/dim): light after the MRM writes data'],
+cav:'Teaching architecture: this course uses a microring modulator (MRM) as its representative case; not every CPO uses an MRM (Mach-Zehnder modulators, MZM, are another option). Bright/dim pulses are a conceptual simplification, not the actual modulation format (real products often use multi-level formats such as PAM4); waveforms have no scale and show only qualitative change. The Ge PD and TIA belong to the far-end receiver at the other end of the fiber, not to the local CPO transmitter.',
+sc:{t:'CPO Signal-Flow Schematic',tag:'Teaching architecture: MRM transmit chain + far-end receive · conceptual',pkg:'CPO package · local transmitter TX',rx:'Far-end receiver RX',rx2:'conceptual · not in 3D',out:'outside pkg',hint:'Click a block: jump to that step while running, read it when stopped · Esc / ✕ closes',cv:'Note: the MRM is this course’s chosen teaching architecture — not every CPO uses one; bright/dim pulses and waveforms are simplified (no scale, not the real modulation format); the Ge PD and TIA belong to the far-end receiver.',
+ n:{asic:['ASIC','switch · makes data'],eic:['EIC driver','data → drive V'],mrm:['MRM','voltage → light'],las:['CW laser ELS','external · CW only'],fau:['FAU','fiber coupling'],pd:['Ge PD','light → current'],tia:['TIA','current → voltage']},
+ l:{ic:'Interconnect',dv:'Drive voltage',cw:'Waveguide · CW light',cw2:'constant power · no data',wg:'WG',fb:'SMF fiber',md:'bright / dim (simplified)',ph:'Photocurrent',vo:'Voltage out'}},
+h2:'Distance · in-package trace length, ASIC edge ↔ engine EIC',edu:'Educational approximation · trends only; not a product spec / OIF standard / measurement',mL:'Trace length L [slider]',mIL:'Electrical channel loss @{f} GHz [C assumption]',mD:'Loss increase vs 2 mm [C]',mE:'SerDes energy (2 mm = 100 %) [C]',mT:'Electrical delay [B formula]',mO:'Optical loss change [B]',oz:'≈ 0 dB (not set by slider)',
+dn:'L = electrical trace length on the package substrate / interposer from the ASIC edge to the optical-engine EIC (2–30 mm; the 3D view uses a compressed schematic scale and keeps the engine on the substrate). Electrical loss = fixed 1 dB interfaces + α·L, α ≈ 0.2 dB/mm (for 200G lanes, f_N ≈ 53 GHz; √f conductor + f dielectric terms, class C teaching assumption; f_N and α change when the per-lane rate is changed under “Transmission”); SerDes energy = 2.0 + 0.12 × loss pJ/bit (class C, relative trend only, not absolute watts); delay 6.5 ps/mm (class B, εr≈4 approximation). Fibers and FAU follow the engine, but optical loss is not set by this slider: electrical dB and optical dB must not be added. CPO / NPO / pluggable differ in overall architecture, not by this distance alone; a pluggable’s tens-of-cm PCB trace is outside this slider.'}};
+/* M4-B 光學實驗字串（中英） */
+D.zh.x={t:'光學調校 · FAU × MRM × 雷射（三者連動）',
+how:'調整任一參數 → 同時觀察 3D（FAU 位移、耦合光斑顏色、微環／加熱器顏色、光粒子亮度）、原理圖上的即時數值，以及本頁曲線，以及右上方的五項鏈路效能。按左側「訊號流程」或原理圖中的「▶ 運行」才會看到光粒子。',
+off:'目前已停止（雷射未供光）：以下為「運行時」的穩態估計值。',
+ch:'光功率鏈（同一個模型串起三組實驗）',wf:['外部光纖／連接器〔C〕','FAU 輸入面：雷射光進 PIC','晶片內波導〔C〕','MRM 平均穿透（工作點）','FAU 輸出面：訊號光進光纖'],from:'雷射輸出',to:'進入光纖（平均）',
+cause:{fau:'目前最大的可調損耗：FAU 偏移／模場不匹配。同一個 FAU 同時承載雷射輸入與訊號輸出光纖，所以偏移損耗算兩次。',mrm:'目前最大的可調損耗：MRM 工作點（微環共振與雷射波長的相對位置）。',ok:'FAU 與 MRM 都接近最佳；此時改變雷射功率，光纖功率會等比例變化（dB 等量平移）。'},
+q:'調變品質',qs:{good:'良好',warn:'臨界',bad:'失效'},all:'全部重設',rs:'重設',
+fau:{h:'① FAU 光纖陣列對準',cpl:'耦合結構（教學案例：容差不同）',cp:{ssc:['SSC 擴模邊緣耦合 + 標準單模光纖','晶片模場半徑 w≈4.6 µm ≈ 光纖'],uhna:['小模場邊緣耦合 + 小模場光纖','兩端 w≈2.5 µm：對準時無損，但容差較緊'],mis:['小模場邊緣耦合 + 標準單模光纖','2.5 vs 4.6 µm：對準時仍有模場不匹配損耗']},
+x:'X 水平橫向偏移',y:'Y 垂直偏移',z:'Z 軸向間隙（沿光軸）',rs:'回到最佳對準',v1:'截面（實際尺度）：青＝晶片模場，紫圈＝光纖模場',v2:'效率 vs 橫向偏移',
+eta:'單面耦合效率 η〔B 公式 · C 參數〕',fl:'單面損耗（含固有 0.5 dB）〔C〕',tl:'FAU 兩面合計（輸入＋輸出）',mm:'其中模場不匹配（對準時仍存在）',
+vis:'3D 中 FAU 位移經大幅放大，非真實比例；所有數據使用真實單位 µm。',
+n:'高斯模場重疊近似（B 級公式）：η = 4 / [(w₁/w₂ + w₂/w₁)² + (λz / πn·w₁w₂)²] × exp[−2(x²+y²) / (w₁² + w₂(z)²)]，w₂(z) 為光纖光束經間隙 z 擴張後的半徑。偏移 1 µm 損耗很小，3 µm 時急增——耦合對偏移是非線性的；模場越小容差越緊，所以不同 FAU／耦合器的容差不同。假設（C 級）：兩端為理想高斯模場、間隙為空氣 n = 1（主動對準時；固化後的折射率匹配膠會改變結果）、無角度傾斜、無端面反射、固有損耗每面 0.5 dB。適用：偏移數 µm、間隙數十 µm 內的邊緣耦合；不適用：光柵耦合器（垂直入射、角度與波長敏感）、多模光纖、透鏡光纖。'},
+mrm:{h:'② MRM 微環調變器 · 溫度與加熱器',ta:'光引擎環境溫度 T_env',hon:'加熱器：開',hoff:'加熱器：關',hp:'加熱器功率 P_h',lock:'自動調到工作點',
+lk:{ok:'已算出對準所需的加熱功率。',hot:'無法鎖定：環境太熱，共振已在雷射的長波長側；加熱器只能加熱、不能降溫。',max:'無法鎖定：所需加熱功率超過上限 25 mW。'},
+sp:'簡化穿透光譜（單一共振峰 Lorentzian）',las:'雷射',res:'共振',axL:'波長 nm',axT:'穿透率',bd:'亮／暗',
+mTa:'環境溫度 T_env〔輸入〕',mDh:'加熱器升溫 ΔT_h = R_th·P_h〔C〕',mTr:'微環有效溫度 T_ring〔模型〕',mLr:'共振波長 λ_res〔B 公式 · C 參數〕',mDe:'失諧 δ = λ_雷射 − λ_res',mT:'MRM 平均穿透率',mC:'調變對比（相對最佳值）〔C · 非 OMA〕',
+n:'溫度模型只有一條路徑：T_ring = T_env + R_th × P_h；λ_res = λ_res(75 °C) + κ_T × (T_ring − 75 °C)。κ_T = 75 pm/K（矽微環文獻：模擬 68.2、實驗 77 pm/K，見 docs）；R_th = 2.5 K/mW → 加熱效率 ≈ 0.19 nm/mW；FWHM = 0.26 nm（Q ≈ 5000）；調變擺幅 80 pm（以上 C 級教學假設）。溫度升高 → 共振紅移（往長波長）。加熱器只能加熱，所以設計上讓「冷態」共振位在雷射短波長側，再用加熱器往上拉；環境超過約 75 °C 就拉不回來。最佳工作點在共振斜坡上、而非正中心：在中心或遠離共振時亮暗差都變小——遠離共振時光幾乎全部通過，但資料寫不進去。不含：自熱雙穩態、多個共振峰（FSR）切換、TEC 冷卻、元件差異。此為本課教學案例，不代表所有 CPO（也有 MZM 方案）。'},
+las:{h:'③ 雷射 · 功率與波長',p:'雷射輸出功率 P_L',l:'雷射波長 λ_L',rs:'恢復預設',mP:'雷射輸出（ELS 端）',mPic:'進入 PIC（經外部光纖＋FAU 輸入面）',mF:'進入光纖的平均功率',mL:'雷射波長／距共振',
+n:'P_光纖 = P_L × 外部損耗 × η_FAU(入) × 波導損耗 × T_MRM × η_FAU(出)。其他條件不變時 P_L 加倍，光纖功率也加倍（+3 dB）。雷射輸出功率 ≠ 接收功率，也 ≠ OMA（OMA 需要調變深度／消光比模型，本階段不計算）。改變波長等於移動雷射線：微環共振不動，失諧 δ 改變，通常需要重新調整加熱器。假設 ELS 有自己的溫控，波長不隨光引擎溫度漂移（C）。1310 nm 是近紅外光，肉眼看不見，動畫顏色只是示意。'}};
+D.en.x={t:'Optics tuning · FAU × MRM × laser (linked)',
+how:'Change any parameter → watch the 3D view (FAU shift, coupling-spot color, ring/heater color, particle brightness), the live values on the schematic, the plots here and the five link metrics at the top right together. Press “▶ Run” under “Signal flow” on the left or in the schematic to see light particles.',
+off:'Stopped (laser off): values below are steady-state estimates for when it runs.',
+ch:'Optical power chain (one model links all three labs)',wf:['External fiber / connector [C]','FAU input facet: laser into PIC','On-chip waveguide [C]','MRM mean transmission (op. point)','FAU output facet: signal into fiber'],from:'Laser output',to:'Into fiber (mean)',
+cause:{fau:'Largest adjustable loss now: FAU misalignment / mode mismatch. One FAU carries both the laser-input and signal-output fibers, so the misalignment loss counts twice.',mrm:'Largest adjustable loss now: the MRM operating point (ring resonance vs laser wavelength).',ok:'FAU and MRM are near optimum; changing laser power now scales fiber power proportionally (equal dB shift).'},
+q:'Modulation quality',qs:{good:'Good',warn:'Marginal',bad:'Failed'},all:'Reset all',rs:'Reset',
+fau:{h:'① FAU fiber-array alignment',cpl:'Coupling structure (teaching cases: different tolerances)',cp:{ssc:['Mode-expanding SSC edge coupler + standard SMF','chip mode radius w≈4.6 µm ≈ fiber'],uhna:['Small-mode edge coupler + small-mode fiber','both w≈2.5 µm: lossless when aligned, tighter tolerance'],mis:['Small-mode edge coupler + standard SMF','2.5 vs 4.6 µm: mode-mismatch loss even when aligned']},
+x:'X horizontal lateral offset',y:'Y vertical offset',z:'Z axial gap (along the beam)',rs:'Back to best alignment',v1:'Cross-section (true scale): teal = chip mode, violet ring = fiber mode',v2:'Efficiency vs lateral offset',
+eta:'Per-facet coupling efficiency η [B formula · C params]',fl:'Per-facet loss (incl. 0.5 dB intrinsic) [C]',tl:'Both FAU facets (in + out)',mm:'of which mode mismatch (present even aligned)',
+vis:'FAU motion in 3D is strongly magnified, not to scale; all data use real units (µm).',
+n:'Gaussian mode-overlap approximation (class B formula): η = 4 / [(w₁/w₂ + w₂/w₁)² + (λz / πn·w₁w₂)²] × exp[−2(x²+y²) / (w₁² + w₂(z)²)], where w₂(z) is the fiber beam radius after spreading across gap z. A 1 µm offset costs little; at 3 µm the loss climbs steeply — coupling is nonlinear in offset; smaller modes give tighter tolerance, so FAUs/couplers differ. Assumptions (class C): ideal Gaussian modes, air gap n = 1 (during active alignment; cured index-matching epoxy changes the result), no tilt, no facet reflection, 0.5 dB intrinsic loss per facet. Valid for edge coupling with offsets of a few µm and gaps up to tens of µm; not for grating couplers (vertical, angle- and wavelength-sensitive), multimode or lensed fibers.'},
+mrm:{h:'② MRM microring modulator · temperature & heater',ta:'Engine ambient temperature T_env',hon:'Heater: ON',hoff:'Heater: OFF',hp:'Heater power P_h',lock:'Auto-tune to operating point',
+lk:{ok:'Heater power needed for alignment computed.',hot:'Cannot lock: too hot — the resonance is already on the long-wavelength side of the laser; a heater can only heat, not cool.',max:'Cannot lock: required heater power exceeds the 25 mW limit.'},
+sp:'Simplified transmission spectrum (single Lorentzian resonance)',las:'laser',res:'resonance',axL:'wavelength nm',axT:'transmission',bd:'bright / dim',
+mTa:'Ambient T_env [input]',mDh:'Heater rise ΔT_h = R_th·P_h [C]',mTr:'Effective ring temperature T_ring [model]',mLr:'Resonance λ_res [B formula · C params]',mDe:'Detuning δ = λ_laser − λ_res',mT:'MRM mean transmission',mC:'Modulation contrast (vs best) [C · not OMA]',
+n:'One temperature path only: T_ring = T_env + R_th × P_h; λ_res = λ_res(75 °C) + κ_T × (T_ring − 75 °C). κ_T = 75 pm/K (silicon microring literature: 68.2 simulated, 77 pm/K measured — see docs); R_th = 2.5 K/mW → ≈ 0.19 nm/mW; FWHM = 0.26 nm (Q ≈ 5000); modulation swing 80 pm (all class C teaching assumptions). Hotter → resonance red-shifts. A heater can only heat, so the “cold” resonance is designed to sit on the short-wavelength side of the laser and is pulled up by heating; above ≈ 75 °C ambient it cannot be pulled back. The best operating point is on the resonance slope, not its center: at the center or far away the bright/dim difference shrinks — far off resonance almost all light passes but no data is written. Excludes self-heating bistability, FSR hopping, TEC cooling, device variation. A teaching case for this course, not every CPO (some use MZMs).'},
+las:{h:'③ Laser · power & wavelength',p:'Laser output power P_L',l:'Laser wavelength λ_L',rs:'Restore defaults',mP:'Laser output (at ELS)',mPic:'Into PIC (after external fiber + FAU input)',mF:'Mean power into fiber',mL:'Wavelength / offset from resonance',
+n:'P_fiber = P_L × external loss × η_FAU(in) × waveguide loss × T_MRM × η_FAU(out). With everything else fixed, doubling P_L doubles fiber power (+3 dB). Laser output power ≠ received power and ≠ OMA (OMA needs a modulation-depth / extinction-ratio model, not computed in this stage). Changing wavelength moves the laser line while the ring resonance stays put, so detuning δ changes and the heater usually needs re-tuning. The ELS is assumed to have its own temperature control, so its wavelength does not drift with engine temperature (C). 1310 nm is near-infrared and invisible to the eye; animation colors are only symbolic.'}};
+/* M4-C 鏈路效能字串（中英）。{x} 由 fmt() 代入 */
+D.zh.p={cfg:'通道配置',front:'前瞻教學情境',
+ qs:{good:'良好',warn:'普通',bad:'不佳'},
+ cfgT:{'800G':['公開標準 IEEE 802.3df-2024：800GBASE-DR8 = 8 × 53.125 GBd PAM4、單模光纖 500 m〔A〕','200G／通道屬 IEEE P802.3dj（草案，尚在制定）〔A 待定稿〕；同為 800G、通道數減半'],
+  '1.6T':['本課基準案例。NVIDIA 公布的 CPO 交換器為每埠 1.6T、200G 通道〔A 廠商發表〕；1.6TBASE-DR8 屬 P802.3dj 草案','教學對照：同容量、通道數加倍、每通道速率減半〔C〕'],
+  '3.2T':['沿用 200G 通道、數量加倍；目前沒有可確認的商用 3.2T CPO 通道規格〔C〕','400G／通道仍在研發〔C〕']},
+ t:'鏈路效能 · 容量 × 損耗 × 功耗 × 延遲 × 品質',
+ how:'這裡所有數字都由同一組參數算出：「傳輸配置」的容量與通道、「光學調校」的 FAU／MRM／雷射、「封裝互連」的走線長度 L。改任何一項，上方五項看板、這裡的細節與原理圖一起更新。',
+ cap:{h:'① 通道架構：容量從哪裡來',f:'總容量 = 通道數 N × 每通道有效速率',
+  m:['系統總容量（有效資料，一個光引擎）','通道數 N〔教學案例〕','每通道有效資料速率','每通道線路速率（含 FEC 等編碼開銷）','每通道符號率（PAM4：每符號 2 bit）','Nyquist 頻率 f_N（電氣損耗在此頻率估算）','N 條通道的線路速率合計'],
+  sv:'每條通道 = 1 個 EIC 驅動 ＋ 1 個 MRM ＋ 1 條單模光纖（並行單模、DR 型教學案例）。#1 = 「光學調校」正在調的代表通道，其餘通道假設與它相同。',
+  n:'總容量不是單一波長的速率：1.6T 是 8 條 200G 通道「並排」相加。同一容量可以有不同配置（8×100G、4×200G 都是 800G）：通道越少、每通道越快 → 符號率與 f_N 越高 → 電氣損耗與接收雜訊頻寬增加；通道越多 → 需要的微環、光纖、雷射光越多。線路速率略高於有效速率，多出的是 FEC 等編碼開銷（以 IEEE 100G／200G 通道的 106.25／212.5 Gb/s 為例；400G 的 425 Gb/s 為 C 級推估）。光學損耗是「每條通道」的量：容量加倍不會讓每條通道的光學損耗加倍。3D 只畫 4 個微環作為示意，不代表實際通道數。'},
+ loss:{h:'② 光功率與損耗（每通道）',from:'雷射輸出',rx:'接收端平均',col:['環節','','損耗','之後功率'],
+  fib:'光纖傳輸 {m} m × 0.4 dB/km〔A/B〕',con:'光纖連接器 2 個 × 0.5 dB〔C〕',
+  tot:'雷射 → 接收端 光學損耗合計',eta:'FAU 單面耦合效率 η（輸入、輸出兩面各計一次）',las:'N 條通道的雷射光合計（光功率）',
+  el:'電氣互連損耗（ASIC → EIC，@ f_N）',elN:'電氣 dB 影響的是 SerDes 等化與功耗，不能和上面的光學 dB 相加，所以獨立列出。',
+  n:'單位：光功率用 mW 或 dBm（dBm = 10·log₁₀(P ÷ 1 mW)）；損耗用 dB（逐段相減）；耦合效率用 %（η = 10^(−dB/10)）。前五行直接沿用「光學調校」同一個模型的結果（每項只算一次；FAU 有輸入、輸出兩個耦合面，所以列兩行），再加上本頁的光纖與連接器。接收功率是平均功率；沒有經驗證的接收靈敏度，所以不顯示絕對鏈路餘裕。光纖長度示例在「傳輸配置」或「④ 延遲」切換。'},
+ pwr:{h:'③ 功耗與能耗效率',scope:'計算範圍：一個光引擎的發射方向（N 條通道）＋ 對應的 ASIC SerDes 介面 ＋ 供光的外接雷射。不含：ASIC 交換核心、交換器其他部分、遠端接收端、風扇與電源轉換。',
+  it:['ASIC SerDes 介面（隨 L 與 f_N）','EIC 驅動器','雷射電輸入（ELS，封裝外）','MRM 加熱器（熱調諧）'],
+  tot:'合計功耗（上述範圍）',pj:'能耗效率',pjN:'pJ/bit = 合計功耗 ÷ 有效資料速率 {c}（1 W ÷ 1 Tb/s = 1 pJ/bit）',lo:'雷射光輸出合計（光功率）',le:'雷射電輸入合計（耗電）',
+  n:'公式：SerDes = (2.0 + 0.12 × 電損耗 dB) pJ/bit × 線路速率〔C，沿用 M2 模型〕；EIC 驅動 = 0.8 pJ/bit × 線路速率〔C〕；雷射電輸入 = N × P_L ÷ 15 %（電光轉換效率，含驅動與溫控）〔C〕；加熱器 = N × P_h（「光學調校」的加熱器功率，假設每通道相同）〔模型〕。係數都是教學假設，不是產品實測。雷射光輸出 ≠ 雷射耗電：10 mW 的光約需 67 mW 的電。容量加倍時，與「每 bit」相關的功耗（SerDes、驅動）大致加倍，與「每通道」相關的（雷射、加熱器）隨通道數變化，所以 pJ/bit 不一定改變。NVIDIA 曾公布 CPO 每 1.6T 埠約 9 W、可插拔約 30 W（廠商宣稱，比較條件由廠商定義）；本頁計算範圍不同，不能直接對照，也不代表 CPO 在所有情境都省固定比例。三種架構的正式比較在 M7。'},
+ lat:{h:'④ 延遲：時間花在哪裡',fl:'光纖長度示例（教學選定，同時用於損耗）',ph:'傳播延遲（和距離有關，和速率無關）',sh:'序列化時間（和速率有關，和距離無關）',
+  it:['封裝內電走線 L × 6.5 ps/mm〔B〕','光纖傳播 {m} m × 4.9 ns/m〔B〕','電光／光電轉換與電路處理（EIC、MRM、PD、TIA）'],ne:'未估算',sum:'傳播延遲合計（電走線＋光纖）',
+  se:['每通道 1 bit 時間 = 1 ÷ 線路速率','每通道 1 個 PAM4 符號時間','1500 B 封包，N 條通道並行送','同一封包只用 1 條通道送'],log:'長條為對數刻度：每格 ×10（1 ps → 10 µs）',
+  n:'傳播延遲 = 距離 ÷ 訊號速度：封裝內走線每 mm 約 6.5 ps，把 L 從 2 拉到 30 mm 只多約 0.18 ns；光纖每公尺約 4.9 ns（n ≈ 1.47），100 m 就是 0.49 µs。序列化時間 = 資料量 ÷ 速率：速率越高，送完一個封包越快，但光走完光纖的時間不變。1 bit 時間、總容量、端到端延遲是三個不同的量，不能互換。電光／光電轉換與類比電路沒有可靠數據，本頁不估算；鏈路若含 DSP、FEC 解碼或交換處理，還會有額外延遲（也不估算）。'},
+ eye:{h:'⑤ 訊號品質 · 教育級眼圖',tag:'教育示意，非實際量測',idx:'眼高指數（預設 1.6T 狀態 = 100 %）',q:'品質分級（C 級門檻）',sw:'接收端亮／暗功率差（相對預設）',ns:'接收雜訊 σ（相對 200G 通道，∝ √符號率）',
+  hi:'亮',lo:'暗',op:'眼高',cl:'眼睛閉合',z:'0 mW',
+  dr:'相對預設的影響（dB，加總 = 亮暗差變化）：FAU {a} · MRM 工作點 {b} · 雷射功率 {c} · 光纖長度 {d}；另外雜訊 σ 變為 {e}（由每通道速率決定）。',
+  n:'畫法：接收端「亮」「暗」兩種位元的平均光功率（由 FAU、MRM、雷射、光纖同一條模型算出）當作上下兩條軌跡，再疊上固定的接收雜訊帶（±3σ）。眼高指數 = (亮暗差 − 6σ) ÷ 預設狀態的同一值。假設：接收端以熱雜訊為主、雜訊 ∝ √符號率（B 級公式，C 級參數 σ = 3.5 % 預設亮暗差），所以每通道越快雜訊帶越粗；以兩階（亮／暗）簡化表示，實際 PAM4 有四階、三個眼。分級：≥ 60 % 良好、20–60 % 普通、< 20 % 不佳（C）。沒有頻寬、抖動、接收器與等化模型，所以不計算 BER、Q 值或 OMA 量測值——這張圖只代表趨勢。這裡是「整條鏈路」的品質，和「光學調校」中只看 MRM 的調變品質是不同指標。'}};
+D.en.p={cfg:'Lane config',front:'Forward-looking teaching scenario',
+ qs:{good:'Good',warn:'Fair',bad:'Poor'},
+ cfgT:{'800G':['Public standard IEEE 802.3df-2024: 800GBASE-DR8 = 8 × 53.125 GBd PAM4 over 500 m SMF [A]','200G/lane belongs to IEEE P802.3dj (draft, not final) [A pending]; still 800G with half the lanes'],
+  '1.6T':['Baseline teaching case. NVIDIA’s announced CPO switches use 1.6T ports with 200G lanes [A vendor]; 1.6TBASE-DR8 is in the P802.3dj draft','Teaching contrast: same capacity, twice the lanes at half the rate [C]'],
+  '3.2T':['Keeps 200G lanes and doubles their number; no confirmed commercial 3.2T CPO lane spec [C]','400G/lane is still in development [C]']},
+ t:'Link performance · capacity × loss × power × latency × quality',
+ how:'Every number here comes from one parameter set: capacity and lanes in “Transmission”, the FAU / MRM / laser in “Optics tuning”, and trace length L in “Package link”. Change any of them and the five tiles above, these details and the schematic update together.',
+ cap:{h:'① Lane architecture: where capacity comes from',f:'Total capacity = lane count N × per-lane effective rate',
+  m:['Total capacity (payload, one engine)','Lane count N [teaching case]','Per-lane effective data rate','Per-lane line rate (incl. FEC/coding overhead)','Per-lane symbol rate (PAM4: 2 bit/symbol)','Nyquist frequency f_N (electrical loss evaluated here)','Sum of N lane line rates'],
+  sv:'Each lane = 1 EIC driver + 1 MRM + 1 single-mode fiber (parallel SMF, DR-style teaching case). #1 = the representative lane tuned in “Optics tuning”; the others are assumed identical.',
+  n:'Total capacity is not the rate of one wavelength: 1.6T is eight 200G lanes side by side. One capacity can have different configs (8×100G and 4×200G are both 800G): fewer, faster lanes → higher symbol rate and f_N → more electrical loss and receiver noise bandwidth; more lanes → more rings, fibers and laser light. The line rate is a little above the payload rate; the extra is FEC/coding overhead (IEEE 100G/200G lanes run 106.25 / 212.5 Gb/s; 425 Gb/s for 400G is a class-C estimate). Optical loss is a per-lane quantity: doubling capacity does not double each lane’s optical loss. The 3D view shows only 4 rings symbolically, not the real lane count.'},
+ loss:{h:'② Optical power & loss (per lane)',from:'Laser output',rx:'RX mean',col:['Stage','','Loss','Power after'],
+  fib:'Fiber {m} m × 0.4 dB/km [A/B]',con:'2 fiber connectors × 0.5 dB [C]',
+  tot:'Total optical loss, laser → receiver',eta:'FAU per-facet coupling η (input and output facets each counted once)',las:'Laser light summed over N lanes (optical)',
+  el:'Electrical interconnect loss (ASIC → EIC, @ f_N)',elN:'Electrical dB drives SerDes equalization and power; it must not be added to the optical dB above, so it is listed separately.',
+  n:'Units: optical power in mW or dBm (dBm = 10·log₁₀(P ÷ 1 mW)); loss in dB (subtracted stage by stage); coupling efficiency in % (η = 10^(−dB/10)). The first five rows reuse the same “Optics tuning” model (each counted once; the FAU has an input and an output facet, hence two rows), then this page adds fiber and connectors. Received power is the mean power; with no validated receiver sensitivity, no absolute link margin is shown. Change the example fiber length under “Transmission” or “④ Latency”.'},
+ pwr:{h:'③ Power & energy efficiency',scope:'Scope: the transmit direction of one optical engine (N lanes) + the matching ASIC SerDes interface + the external laser feeding it. Excludes: ASIC switching core, rest of the switch, far-end receiver, fans and power conversion.',
+  it:['ASIC SerDes interface (depends on L and f_N)','EIC driver','Laser electrical input (ELS, off-package)','MRM heater (thermal tuning)'],
+  tot:'Total power (scope above)',pj:'Energy efficiency',pjN:'pJ/bit = total power ÷ payload rate {c} (1 W ÷ 1 Tb/s = 1 pJ/bit)',lo:'Total laser optical output',le:'Total laser electrical input',
+  n:'Formulas: SerDes = (2.0 + 0.12 × electrical loss dB) pJ/bit × line rate [C, M2 model]; EIC driver = 0.8 pJ/bit × line rate [C]; laser electrical = N × P_L ÷ 15 % (wall-plug efficiency incl. drive and temperature control) [C]; heater = N × P_h (the Optics-lab heater power, assumed equal per lane) [model]. All coefficients are teaching assumptions, not product measurements. Laser optical output ≠ laser power draw: 10 mW of light needs ≈ 67 mW of electricity. Doubling capacity roughly doubles per-bit costs (SerDes, driver), while per-lane costs (laser, heater) follow lane count, so pJ/bit need not change. NVIDIA has announced ≈ 9 W per 1.6T port for CPO vs ≈ 30 W pluggable (vendor claim, vendor-defined conditions); this page uses a different scope, so the numbers cannot be compared directly, and CPO does not save a fixed percentage in every scenario. A formal three-architecture comparison comes in M7.'},
+ lat:{h:'④ Latency: where the time goes',fl:'Example fiber length (teaching choice, also used for loss)',ph:'Propagation delay (depends on distance, not rate)',sh:'Serialization time (depends on rate, not distance)',
+  it:['In-package trace L × 6.5 ps/mm [B]','Fiber {m} m × 4.9 ns/m [B]','E/O, O/E conversion & circuits (EIC, MRM, PD, TIA)'],ne:'not estimated',sum:'Total propagation (trace + fiber)',
+  se:['1 bit time per lane = 1 ÷ line rate','1 PAM4 symbol per lane','1500 B packet over N lanes in parallel','same packet on a single lane'],log:'Bars use a log scale: ×10 per step (1 ps → 10 µs)',
+  n:'Propagation delay = distance ÷ signal speed: an in-package trace costs ≈ 6.5 ps per mm, so moving L from 2 to 30 mm adds only ≈ 0.18 ns; fiber costs ≈ 4.9 ns per meter (n ≈ 1.47), so 100 m is 0.49 µs. Serialization time = data size ÷ rate: a faster link finishes sending a packet sooner, but light still takes the same time to cross the fiber. Bit time, total capacity and end-to-end latency are three different quantities. No reliable data exist here for E/O, O/E conversion and analog circuits, so they are not estimated; DSP, FEC decoding or switching would add more delay (also not estimated).'},
+ eye:{h:'⑤ Signal quality · educational eye diagram',tag:'Educational illustration, not a measurement',idx:'Eye-height index (default 1.6T state = 100 %)',q:'Quality grade (class-C thresholds)',sw:'RX bright/dim power difference (vs default)',ns:'Receiver noise σ (vs 200G lane, ∝ √symbol rate)',
+  hi:'bright',lo:'dim',op:'eye height',cl:'eye closed',z:'0 mW',
+  dr:'Changes vs default (dB; they add up to the bright/dim change): FAU {a} · MRM operating point {b} · laser power {c} · fiber length {d}; noise σ is now {e} (set by per-lane rate).',
+  n:'How it is drawn: the mean received powers of “bright” and “dim” bits (from the same FAU, MRM, laser and fiber model) form the upper and lower traces, overlaid with a fixed receiver-noise band (±3σ). Eye-height index = (bright − dim − 6σ) ÷ the same value in the default state. Assumptions: thermal-noise-limited receiver with noise ∝ √symbol rate (class-B formula, class-C parameter σ = 3.5 % of the default bright/dim difference), so faster lanes get a thicker noise band; shown as two levels (bright/dim) for simplicity — real PAM4 has four levels and three eyes. Grades: ≥ 60 % good, 20–60 % fair, < 20 % poor (C). Without bandwidth, jitter, receiver and equalizer models, no BER, Q-factor or measured OMA is computed — the plot shows trends only. This is whole-link quality, a different metric from the MRM-only modulation quality in “Optics tuning”.'}};
+/* M5.5 介面重整字串（中英）：左側概覽／訊號流程、3D 小滑桿與參考卡、右側五項看板、三組控制、三容量並排比較。{x} 由 fmt() 代入 */
+D.zh.ui={ov:'概覽',intro:'課程簡介：封裝與 CPO',more:'▾ 展開全文',less:'▴ 收合',sig:'訊號流程',sigX:'六個訊號步驟、0／1 示意與說明',
+ lift:'抬升所選層',liftNo:'先在 3D 或清單點選一個元件，才能抬升',liftHid:'所選元件目前已隱藏（眼睛圖示），抬升看不到效果',
+ sec:'剖面',spec:'規格',secT:'剖面圖 · 點任一層可選取',specT:'規格參考',close:'關閉',
+ dash:'鏈路效能 · 即時',dtag:'教育級近似 · 非實測',
+ k:['容量 · 一個光引擎','損耗 · 每通道光學','功耗 · 發射鏈範圍','延遲 · 傳播','訊號品質 · 整條鏈路（教育級眼圖）'],
+ ks:{cap:'{n} 通道 × {g} Gb/s',loss:'接收 {r} dBm · 電氣互連另計 {e} dB',pwr:'{p} pJ/bit',lat:'光纖 {m} m · 其中封裝走線 {e}',eye:'眼高指數（預設 1.6T = 100 %）· 接收雜訊 σ {s} %'},
+ kt:{cap:'總容量 = 通道數 × 每通道有效速率（一個光引擎）',loss:'雷射輸出 → 遠端接收端，每一條通道的光學損耗；電氣 dB 與光學 dB 不能相加，所以電氣互連另列',pwr:'一個光引擎的發射方向：ASIC SerDes ＋ EIC 驅動 ＋ 雷射電輸入 ＋ MRM 加熱器',lat:'傳播延遲 = 封裝內電走線 ＋ 指定長度光纖；不含電光轉換與電路處理',eye:'整條鏈路的教育級品質指標；不是 BER、不是實測'},
+ dOff:'已停止：數值為「運行時」的穩態估計。點任一格可在看板內展開公式與細節（不跳頁）。',dOn:'運行中 · 點任一格可在看板內展開公式與細節（不跳頁）。',
+ g:['光學調校','封裝互連','傳輸配置'],
+ g0:'FAU 對準、MRM 溫度／加熱器、雷射功率與波長（FAU 與外接雷射不屬於 PIC 晶片本體）。調整時直接看上方五項結果。',
+ g1:'ASIC 與光引擎之間的封裝內電氣路徑：拉動滑桿，3D 中光引擎會移動；功耗與延遲的變化看上方看板。',dnH:'公式、假設與適用範圍',
+ g2:'容量是「系統容量情境」（一個光引擎的通道數 × 每通道速率），不是單一光纖的固定速度。上方看板顯示目前情境，下表三種容量同時並排。',
+ cap:'系統容量情境（一個光引擎 · 教學案例）',fl:'光纖長度示例（影響損耗、延遲、品質）',
+ cmpT:'三種容量情境並排比較',cmpH:'點欄位標題即可切換容量（畫面不會跳動）',cur:'目前',
+ cmpR:['總容量','每通道光學損耗','接收功率（每通道）','功耗','能耗效率','傳播延遲','1500 B 封包序列化','訊號品質'],
+ cmpC:'比較條件：三欄使用同一組參數——FAU（X {x} / Y {y} / Z {z} µm）、MRM（T_env {t} °C、加熱器 {h}）、雷射 {p} mW @ {l} nm、封裝走線 L = {L} mm、光纖 {m} m。目前選取的容量使用你選的通道配置；另外兩欄使用該容量的第一種（預設）配置，配置寫在欄位標題下方。另外兩欄只是「試算」，不會改動你正在操作的參數。每通道光學損耗、接收功率、傳播延遲三欄相同，是本模型的正確結果（它們與容量無關）；功耗、pJ/bit、封包序列化時間與品質（接收雜訊 ∝ √符號率）才會不同。封包序列化 = 1500 B 封包分散在 N 條通道並行送出所需時間。全部為教育級近似（C 級係數），非實測、非標準。',
+ hOff:'關'};
+D.en.ui={ov:'Overview',intro:'Course intro: packaging & CPO',more:'▾ Read more',less:'▴ Less',sig:'Signal flow',sigX:'Six signal steps, 0/1 view and notes',
+ lift:'Lift selected',liftNo:'Select a part in 3D or the list first to lift it',liftHid:'The selected part is hidden (eye icon), so lifting shows nothing',
+ sec:'Section',spec:'Specs',secT:'Cross-section · click a layer to select',specT:'Spec reference',close:'Close',
+ dash:'Link performance · live',dtag:'Educational approx. · not measured',
+ k:['Capacity · 1 engine','Loss · optical/lane','Power · TX chain','Latency · propag.','Signal quality · whole link (educational eye)'],
+ ks:{cap:'{n} lanes × {g} Gb/s',loss:'RX {r} dBm · electrical {e} dB separate',pwr:'{p} pJ/bit',lat:'fiber {m} m · of which trace {e}',eye:'eye-height index (default 1.6T = 100 %) · RX noise σ {s} %'},
+ kt:{cap:'Total capacity = lane count × per-lane payload rate (one optical engine)',loss:'Optical loss of each lane from laser output to the far-end receiver; electrical dB cannot be added to optical dB, so the interconnect is listed separately',pwr:'Transmit direction of one optical engine: ASIC SerDes + EIC driver + laser electrical input + MRM heater',lat:'Propagation delay = in-package trace + the chosen fiber length; excludes E/O conversion and circuit processing',eye:'Educational whole-link quality index; not a BER, not a measurement'},
+ dOff:'Stopped: values are steady-state estimates for when it runs. Click a tile to open formulas and details here (no page jump).',dOn:'Running · click a tile to open formulas and details here (no page jump).',
+ g:['Optics tuning','Package link','Transmission'],
+ g0:'FAU alignment, MRM temperature / heater, laser power and wavelength (the FAU and external laser are not part of the PIC itself). Watch the five results above while you adjust.',
+ g1:'The in-package electrical path between the ASIC and the optical engine: drag the slider and the engine moves in 3D; power and latency changes appear in the panel above.',dnH:'Formulas, assumptions and validity',
+ g2:'Capacity is a system scenario (one engine’s lane count × per-lane rate), not the fixed speed of a single fiber. The panel above shows the current scenario; the table below lays all three capacities side by side.',
+ cap:'System capacity scenario (one optical engine · teaching case)',fl:'Example fiber length (affects loss, latency, quality)',
+ cmpT:'Three capacity scenarios side by side',cmpH:'Click a column header to switch capacity (the page does not jump)',cur:'current',
+ cmpR:['Total capacity','Per-lane optical loss','Received power (per lane)','Power','Energy efficiency','Propagation delay','1500 B packet serialization','Signal quality'],
+ cmpC:'Comparison conditions: all three columns use one parameter set — FAU (X {x} / Y {y} / Z {z} µm), MRM (T_env {t} °C, heater {h}), laser {p} mW @ {l} nm, in-package trace L = {L} mm, fiber {m} m. The selected capacity uses your chosen lane config; the other two use that capacity’s first (default) config, shown under each header. The other two columns are “what-if” calculations and never change the parameters you are adjusting. Per-lane optical loss, received power and propagation delay are identical in all three — the correct result of this model (they do not depend on capacity); power, pJ/bit, packet serialization and quality (receiver noise ∝ √symbol rate) differ. Packet serialization = time to send one 1500 B packet spread over N parallel lanes. All educational approximations (class-C coefficients), not measurements or standards.',
+ hOff:'off'};
+/* ---------- OptiKit：教育級近似物理（純函式，無 DOM；數值等級 A/B/C 見 docs/PHYSICS_MODELS.md §3.1b） ---------- */
+window.OptiKit=window.OptiKit||{};
+OptiKit.cpoElec=(function(){
+ const K={fN:53,a1:.015,a2:.0017,ifdb:1.0,E0:2.0,ke:.12,tps:6.5,Lmin:2,Lmax:30};/* C 級：a1 導體項 dB/mm/√GHz；a2 介電項 dB/mm/GHz；ifdb 兩個介面共 dB；E0 pJ/bit；ke pJ/bit/dB；tps ps/mm(B 級) */
+ /* M4-C：可選參數 fN（GHz）讓速率選擇改變 Nyquist 頻率；省略時 = 53 GHz（M2 原行為，數值完全相同） */
+ const f=(L,fN)=>{L=Math.min(K.Lmax,Math.max(K.Lmin,+L||K.Lmin));fN=fN>0&&isFinite(fN)?fN:K.fN;const al=K.a1*Math.sqrt(fN)+K.a2*fN,il=K.ifdb+al*L,il0=K.ifdb+al*K.Lmin,E=K.E0+K.ke*il,E0=K.E0+K.ke*il0;return{L:L,fN:fN,alpha:al,il:il,dIL:il-il0,E:E,pRel:E/E0*100,lat:K.tps*L}};
+ f.K=K;return f})();
+/* 距離 → 場景佈局（示意壓縮比例，非等比例）：die 邊緣 x=1.6、光引擎寬 2、基板半寬 6 */
+OptiKit.cpoLayout=L=>{const K=OptiKit.cpoElec.K;L=Math.min(K.Lmax,Math.max(K.Lmin,L));const g=.35+(L-K.Lmin)*1.55/(K.Lmax-K.Lmin),xc=2.6+g;return{g:g,xc:xc,dx:xc-3.5,W:Math.max(9.6,2*(3.6+g+.3)),lid:Math.min(2.2,1.55+g)}};
+/* M4-B 光學鏈（純函式，無 DOM）：FAU 高斯模場重疊 × MRM 熱調諧 Lorentzian × 雷射功率/波長。公式、單位、等級見 docs/PHYSICS_MODELS.md §3.12 */
+OptiKit.cpoOptics=(function(){
+ const K={lam0:1310,/* nm，O-band 中心（教學選定） */
+  cpl:{ssc:{wc:4.6,wf:4.6},uhna:{wc:2.5,wf:2.5},mis:{wc:2.5,wf:4.6}},/* 模場半徑 µm（1/e 場振幅）：SMF@1310 MFD≈9.2 µm → w≈4.6（A 待查證，標 C）；2.5 µm 小模場為 C */
+  il0:.5,n:1.0,xyMax:6,zMax:50,/* 每面固有損耗 dB(C)；間隙折射率（空氣）；偏移範圍 µm */
+  ilExt:1.0,ilWg:1.0,/* ELS→FAU 外部光纖/連接器、晶片內波導 dB（C） */
+  kT:.075,lr75:1310.0,Rth:2.5,PhMax:25,Tmin:20,Tmax:90,/* κ_T nm/K（文獻 0.068–0.077，取 0.075）；75 °C 未加熱時共振 nm（C 設計）；R_th K/mW（C）；加熱器上限 mW（C） */
+  fwhm:.26,Tres:.05,dm:.08,/* 線寬 nm（Q≈5000，C）；共振中心最小穿透（C）；調變電壓造成的共振擺幅 nm（C） */
+  PLmin:1,PLmax:40,LLmin:1308.5,LLmax:1311.5};
+ const cl=(v,a,b,d)=>{v=+v;return isFinite(v)?Math.min(b,Math.max(a,v)):d},
+  lor=d=>1-(1-K.Tres)/(1+Math.pow(2*d/K.fwhm,2)),
+  con=d=>Math.abs(lor(d+K.dm/2)-lor(d-K.dm/2)),
+  dB=x=>-10*Math.log10(Math.max(x,1e-12)),dBm=mw=>10*Math.log10(Math.max(mw,1e-12));
+ let dOpt=0,cMax=0;for(let i=0;i<=600;i++){const d=i/600*K.fwhm,c=con(d);if(c>cMax){cMax=c;dOpt=d}}/* 斜率最大的工作點（數值求得） */
+ const fau=(cpl,x,y,z,lamUm)=>{const c=K.cpl[cpl]||K.cpl.ssc,w1=c.wc,w2=c.wf,q=lamUm*z/(Math.PI*K.n*w1*w2),em=4/(Math.pow(w1/w2+w2/w1,2)+q*q),
+  w2z=w2*Math.sqrt(1+Math.pow(lamUm*z/(Math.PI*K.n*w2*w2),2)),el=Math.exp(-2*(x*x+y*y)/(w1*w1+w2z*w2z)),e0=4/Math.pow(w1/w2+w2/w1,2);return{eta:em*el,mis:e0,w1:w1,w2:w2,w2z:w2z}};
+ const f=s=>{
+  const x=cl(s.fauX,-K.xyMax,K.xyMax,0),y=cl(s.fauY,-K.xyMax,K.xyMax,0),z=cl(s.fauZ,0,K.zMax,0),cpl=K.cpl[s.cpl]?s.cpl:'ssc',
+   LL=cl(s.laserL,K.LLmin,K.LLmax,K.lam0),PL=cl(s.laserP,K.PLmin,K.PLmax,10),Ta=cl(s.tAmb,K.Tmin,K.Tmax,45),on=!!s.heatOn,Ph=on?cl(s.heatP,0,K.PhMax,0):0;
+  const F=fau(cpl,x,y,z,LL/1000),facet=F.eta*Math.pow(10,-K.il0/10);
+  const dTh=K.Rth*Ph,Tr=Ta+dTh,lres=K.lr75+K.kT*(Tr-75),lcold=K.lr75+K.kT*(Ta-75),det=LL-lres;
+  const ta=lor(det-K.dm/2),tb=lor(det+K.dm/2),Tb=Math.max(ta,tb),Td=Math.min(ta,tb),Tavg=(ta+tb)/2,cRel=(Tb-Td)/cMax;
+  const Pin=PL*Math.pow(10,-K.ilExt/10),Ppic=Pin*facet,Pring=Ppic*Math.pow(10,-K.ilWg/10),Pf=Pring*Tavg*facet,Pfb=Pring*Tb*facet,Pfd=Pring*Td*facet;
+  const loss=[K.ilExt,dB(facet),K.ilWg,dB(Tavg),dB(facet)],fauEx=2*dB(F.eta),mrmEx=dB(Tavg)-dB((lor(dOpt-K.dm/2)+lor(dOpt+K.dm/2))/2);
+  return{x:x,y:y,z:z,cpl:cpl,LL:LL,PL:PL,Ta:Ta,on:on,Ph:Ph,F:F,eta:F.eta,facet:facet,facetDB:dB(facet),fauDB:dB(F.eta),misDB:dB(F.mis),
+   dTh:dTh,Tr:Tr,lres:lres,lcold:lcold,det:det,Tb:Tb,Td:Td,Tavg:Tavg,cRel:cRel,q:cRel>=.7?'good':cRel>=.3?'warn':'bad',
+   Pin:Pin,Ppic:Ppic,Pring:Pring,Pf:Pf,Pfb:Pfb,Pfd:Pfd,PLdBm:dBm(PL),PfdBm:dBm(Pf),PfbdBm:dBm(Pfb),PfddBm:dBm(Pfd),PindBm:dBm(Pin),
+   loss:loss,lossTot:dB(Pf/PL),cause:Math.max(fauEx,mrmEx)<1?'ok':fauEx>=mrmEx?'fau':'mrm'}};
+ /* 自動調諧：讓共振位於雷射長波長側 dOpt（δ = −dOpt），求所需加熱功率；加熱器只能加熱 → 需求 < 0 時無法鎖定 */
+ f.lock=s=>{const LL=cl(s.laserL,K.LLmin,K.LLmax,K.lam0),Ta=cl(s.tAmb,K.Tmin,K.Tmax,45),need=(LL+dOpt-(K.lr75+K.kT*(Ta-75)))/(K.kT*K.Rth);
+  if(need<0)return{P:0,ok:false,why:'hot'};if(need>K.PhMax)return{P:K.PhMax,ok:false,why:'max'};return{P:need,ok:true,why:'ok'}};
+ f.K=K;f.dOpt=dOpt;f.cMax=cMax;f.lor=lor;f.fau=fau;return f})();
+/* M4-C 鏈路效能（純函式，無 DOM）：輸入 state 與「同一個」cpoOptics 結果 o（不重算、不重複計損耗）→ 通道架構、接收功率、功耗、延遲、教育級眼圖。
+   公式、單位、等級見 docs/PHYSICS_MODELS.md §3.13 */
+OptiKit.cpoPerf=(function(){
+ const RATES={'800G':{cap:800,cfg:[[8,100],[4,200]]},'1.6T':{cap:1600,cfg:[[8,200],[16,100]]},'3.2T':{cap:3200,front:true,cfg:[[16,200],[8,400]]}};/* [通道數, 每通道有效 Gb/s]（教學案例） */
+ const LANE={100:{line:106.25,baud:53.125},200:{line:212.5,baud:106.25},400:{line:425,baud:212.5}};/* 線路速率 Gb/s、PAM4 符號率 GBd：100G A（802.3df）；200G A 草案（P802.3dj）；400G C 推估 */
+ const K={fbDb:.4,nCon:2,ilCon:.5,nsM:4.9,wpe:.15,eDrv:.8,sig0:.035,bRef:106.25,pkt:1500,fibers:[10,100,500],fDef:100};
+ /* fbDb SMF dB/km @1310（A/B）；nCon×ilCon 連接器（C）；nsM 光纖 ns/m（B，n≈1.47）；wpe 雷射電光效率（C）；eDrv EIC 驅動 pJ/bit（C）；sig0 雜訊/預設亮暗差（C）；pkt 封包 bytes（示例） */
+ const O=OptiKit.cpoOptics,dB=x=>-10*Math.log10(Math.max(x,1e-12)),dBm=mw=>10*Math.log10(Math.max(mw,1e-12)),
+  tl=m=>Math.pow(10,-(K.fbDb*m/1000+K.nCon*K.ilCon)/10);
+ /* 參考狀態 = 預設 1.6T、FAU 最佳、加熱器精確鎖定、雷射 10 mW、光纖 100 m：眼高指數 100 % 的定義 */
+ const d0={fauX:0,fauY:0,fauZ:5,cpl:'ssc',tAmb:45,heatOn:true,laserP:10,laserL:1310};d0.heatP=O.lock(d0).P;
+ const o0=O(d0),sw0=(o0.Pfb-o0.Pfd)*tl(K.fDef);
+ const f=(s,o)=>{o=o||O(s);const rk=RATES[s.rate]?s.rate:'1.6T',R=RATES[rk],ci=s.lanes==1?1:0,n=R.cfg[ci][0],g=R.cfg[ci][1],ln=LANE[g],cap=n*g,line=n*ln.line,
+   fN=53*ln.baud/106.25,el=OptiKit.cpoElec(s.dist,fN),fm=K.fibers.indexOf(+s.fiberM)>=0?+s.fiberM:K.fDef;
+  const ilF=K.fbDb*fm/1000,ilC=K.nCon*K.ilCon,t=tl(fm),Prx=o.Pf*t,Prxb=o.Pfb*t,Prxd=o.Pfd*t,sw=Prxb-Prxd;
+  const loss=o.loss.concat([ilF,ilC]);let p=o.PL;const after=loss.map(v=>(p*=Math.pow(10,-v/10)));
+  const pw={ser:el.E*line/1000,drv:K.eDrv*line/1000,las:n*o.PL/1000/K.wpe,heat:n*o.Ph/1000},tot=pw.ser+pw.drv+pw.las+pw.heat;/* W = pJ/bit × Gb/s ÷ 1000 */
+  const sig=K.sig0*Math.sqrt(ln.baud/K.bRef),s1=sw/sw0,EH=(s1-6*sig)/(1-6*K.sig0);
+  const lg=v=>10*Math.log10(Math.max(v,1e-12));
+  return{rate:rk,ci:ci,n:n,g:g,line1:ln.line,baud:ln.baud,cap:cap,line:line,fN:fN,el:el,front:!!R.front,fm:fm,
+   ilF:ilF,ilC:ilC,Prx:Prx,PrxdBm:dBm(Prx),Prxb:Prxb,Prxd:Prxd,sw:sw,loss:loss,after:after,lossTot:dB(Prx/o.PL),laserTot:n*o.PL,
+   pw:pw,tot:tot,pJ:tot*1000/cap,/* pJ/bit = W × 1000 ÷ 有效 Gb/s */
+   lat:{el:el.lat,fib:fm*K.nsM*1000,bit:1000/ln.line,sym:1000/ln.baud,pktN:K.pkt*8/cap*1000,pkt1:K.pkt*8/g*1000},/* 全部 ps */
+   sig:sig,s1:s1,EH:EH,q:EH>=.6?'good':EH>=.2?'warn':'bad',
+   drv:{fau:-2*(dB(o.eta)-dB(o0.eta)),mrm:lg(o.cRel/o0.cRel),las:lg(o.PL/o0.PL),fib:lg(t/tl(K.fDef))}}};
+ f.RATES=RATES;f.LANE=LANE;f.K=K;f.sw0=sw0;f.o0=o0;return f})();
+const PM={};P.forEach(p=>PM[p.i]=p);
+let L=OptiKit.getLang?OptiKit.getLang():'zh',SEL='engine',LAB=true,AUTO=false,EX=.35,LIFT=0,FK='',LD=null,LAY=null,RT0=0;
+/* 單一 state：dist = ASIC 邊緣→光引擎 EIC 的封裝內走線長度 (mm)；
+   M4-A：running = 運行中（取代舊 PW 通電旗標）；stage = 目前訊號步驟 0–5（停止時 -1）；schem = 原理圖浮層開啟；focus = 停止時點選閱讀的步驟。
+   3D 粒子/發光、原理圖高亮、右側步驟清單、3D 左上狀態列全部只讀這個物件（stageUI() 一次同步）。 */
+const state={dist:5,running:false,stage:-1,schem:false,focus:null,
+ /* M4-B 光學實驗（同一個 state）：FAU 偏移 µm、耦合結構、光引擎環境溫度 °C、加熱器開關/功率 mW、雷射功率 mW、雷射波長 nm */
+ fauX:0,fauY:0,fauZ:5,cpl:'ssc',tAmb:45,heatOn:true,heatP:0,laserP:10,laserL:1310,
+ /* M4-C 鏈路效能（同一個 state）：容量情境、通道配置索引（0/1）、光纖長度示例 m */
+ rate:'1.6T',lanes:0,fiberM:100};
+const lockP=r=>+(Math.round(r.P/.05)*.05).toFixed(2);/* 對齊加熱器滑桿刻度 0.05 mW（≈9 pm，遠小於線寬） */
+state.heatP=lockP(OptiKit.cpoOptics.lock(state));/* 開頁時加熱器已調到工作點 */
+const XDEF={fau:{fauX:0,fauY:0,fauZ:5},mrm:{tAmb:45,heatOn:true},las:{laserP:10,laserL:1310}};
+/* OPT = 由 state 計算的派生量（唯一來源）；FV = FAU 在 3D 中的放大視覺位移（scene 單位）；SUB = 光電訊號分頁的子頁；OPEN = 摺疊區塊開合；LKM = 自動調諧訊息 */
+let OPT=OptiKit.cpoOptics(state),FV={gx:0,y:0,z:0},SUB=0,LKM='';const OPEN={fau:true,mrm:false,las:false,intro:false,sig:false,dn:false};
+/* M5.5 介面狀態（非物理量）：SUB = 右側控制組 0 光學調校／1 封裝互連／2 傳輸配置；DX = 看板內展開的指標細節（null 或 cap/loss/pwr/lat/eye）；
+   REF = 3D 參考卡（null／'sec' 剖面／'spec' 規格，與原理圖互斥）；SCR = 每個控制組各自的捲動位置；DSC = 左側元件說明是否展開全文 */
+let DX=null,REF=null,DSC=false;const SCR={};
+/* M4-C：PERF = 由 state 與「同一個 OPT」計算的鏈路效能派生量（唯一來源；面板、四格、原理圖都只讀它） */
+let PERF=OptiKit.cpoPerf(state,OPT);
+const NST=6,DUR=1.8;/* 6 個訊號步驟，每步 1.8 秒循環 */
+const bits=[1,0,1,1,0,1,0,0],VIS={lid:false},ALL=P.map(p=>p.i),NOLID=ALL.filter(i=>i!='lid');
+const eye=o=>'<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/>'+(o?'<path d="M2 14L14 2"/>':'<circle cx="8" cy="8" r="2"/>')+'</svg>';
+/* ---------- 3D 場景 ---------- */
+const cv=$('#cv'),R=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true}),S=new T.Scene(),C=new T.PerspectiveCamera(35,1.4,.1,200);
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+S.add(new T.HemisphereLight(0xffffff,0xc9b99f,.9));const dl=new T.DirectionalLight(0xffffff,.8);dl.position.set(6,12,8);S.add(dl);
+const MAT={},REG={},PICK=[],LB=[];
+const mk=(pid,col,o)=>{const m=new T.MeshStandardMaterial(Object.assign({color:col,roughness:.5,metalness:.15},o||{}));m.userData.e=(o&&o.emissive)||0;(MAT[pid]=MAT[pid]||[]).push(m);return m};
+const grp=(pid,lv,sx)=>{const g=new T.Group();S.add(g);(REG[pid]=REG[pid]||[]).push({g,lv,sx});return g};
+const box=(g,pid,w,h,d,x,y,z,col,o)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),mk(pid,col,o));m.position.set(x,y,z);m.userData.pid=pid;g.add(m);PICK.push(m);return m};
+const grid=(nx,nz,px,x0,y,z0)=>{const a=[];for(let i=0;i<nx;i++)for(let j=0;j<nz;j++)a.push([x0+(i-(nx-1)/2)*px,y,z0+(j-(nz-1)/2)*px]);return a};
+const inst=(g,pid,r,col,pts)=>{const im=new T.InstancedMesh(new T.SphereGeometry(r,10,8),mk(pid,col,{metalness:.5,roughness:.35}),pts.length),d=new T.Object3D();pts.forEach((p,i)=>{d.position.set(p[0],p[1],p[2]);d.updateMatrix();im.setMatrixAt(i,d.matrix)});im.userData.pid=pid;g.add(im);PICK.push(im);return im};
+const AMB={transparent:true,opacity:.35,roughness:.9};
+let g;
+inst(grp('bga',-1.3),'bga',.2,0xc9c9cf,grid(15,10,.78,0,.2,0));
+g=grp('substrate',0);box(g,'substrate',12,.5,8.4,0,.65,0,0x2f6f5a,{roughness:.7});
+g=grp('copper',1.1);[.55,.65,.75].forEach(y=>box(g,'copper',10.6,.03,7.4,0,y,0,0xc9803f,{metalness:.6}));
+g=grp('c4',2.2);const C4M=inst(g,'c4',.07,0xb8bcc4,grid(28,12,.42,0,.97,0));
+g=grp('underfill',2.2);const UF=box(g,'underfill',9.5,.14,4.9,0,.97,0,0xe0b46a,AMB);
+g=grp('interposer',3.2);const IP=box(g,'interposer',9.6,.22,5,0,1.15,0,0x24344a),IPG=g,DYN=[];/* RDL 走線與距離標尺在 applyLayout() 依 L 重建 */
+g=grp('ubump',4.2);inst(g,'ubump',.045,0xd6ad70,grid(16,16,.2,0,1.305,0));
+[-1,1].forEach(s=>{g=grp('ubump',4.2,s);inst(g,'ubump',.045,0xd6ad70,grid(9,12,.2,s*3.5,1.305,0))});
+g=grp('underfill',4.2);box(g,'underfill',3.5,.09,3.5,0,1.305,0,0xe0b46a,AMB);
+[-1,1].forEach(s=>{g=grp('underfill',4.2,s);box(g,'underfill',2.3,.09,2.7,s*3.5,1.305,0,0xe0b46a,AMB)});
+g=grp('die',5.2);box(g,'die',3.2,.38,3.2,0,1.54,0,0x17181c,{roughness:.35,metalness:.3});
+{const cn=document.createElement('canvas');cn.width=cn.height=128;const cx=cn.getContext('2d');cx.fillStyle='#1a1b20';cx.fillRect(0,0,128,128);cx.strokeStyle='#3a3d46';cx.lineWidth=2;for(let i=0;i<=128;i+=16){cx.beginPath();cx.moveTo(i,0);cx.lineTo(i,128);cx.moveTo(0,i);cx.lineTo(128,i);cx.stroke()}
+const pl=new T.Mesh(new T.PlaneGeometry(3.1,3.1),new T.MeshBasicMaterial({map:new T.CanvasTexture(cn)}));pl.rotation.x=-Math.PI/2;pl.position.y=1.735;pl.userData.pid='die';g.add(pl);PICK.push(pl)}
+[-1,1].forEach(s=>{g=grp('engine',5.2,s);box(g,'engine',2,.14,2.4,s*3.5,1.42,0,0x1c6b5e);box(g,'engine',1.1,.1,1.1,s*3.1,1.54,0,0x202226,{metalness:.4})});
+/* M4-B：每個微環外側加一圈金屬加熱器（HTM 不登記在 MAT，選取高亮/運行發光不會覆蓋加熱器亮度） */
+const HTM=new T.MeshStandardMaterial({color:0x8a5a3a,emissive:0,metalness:.6,roughness:.4});
+[1,-1].forEach(s=>{g=grp('rings',5.9,s);[-.75,-.25,.25,.75].forEach(z=>{const m=new T.Mesh(new T.TorusGeometry(.13,.03,8,24),mk('rings',0x8ff0dc,{emissive:0x1a6b5c}));m.rotation.x=Math.PI/2;m.position.set(s*3.95,1.53,z);m.userData.pid='rings';g.add(m);PICK.push(m);
+ const h=new T.Mesh(new T.TorusGeometry(.18,.014,6,28),HTM);h.rotation.x=Math.PI/2;h.position.set(s*3.95,1.505,z);h.userData.pid='rings';g.add(h);PICK.push(h)})});
+[1,-1].forEach(s=>{g=grp('wg',5.9,s);box(g,'wg',.06,.02,1.9,s*4.15,1.5,0,0x55d6c2,{emissive:0x1d7c6c});box(g,'wg',.36,.02,.06,s*4.33,1.5,0,0x55d6c2,{emissive:0x1d7c6c})});
+const LED=new T.MeshStandardMaterial({color:0x3ee0c0,emissive:0x0a2a24});
+g=grp('laser',0);[-1,1].forEach(s=>{box(g,'laser',2.2,.9,1.4,s*8.4,.95,3,0x2a2b30,{roughness:.4});const l=new T.Mesh(new T.BoxGeometry(.18,.18,.04),LED);l.position.set(s*8.4,1.1,3.72);g.add(l)});
+[1,-1].forEach(s=>{g=grp('fibers',5.2,s);box(g,'fibers',.3,.2,1.6,s*4.62,1.55,0,0xcfc8ba)});
+g=grp('fibers',0);[-1,1].forEach(s=>box(g,'fibers',.9,.7,1.2,s*8.4,.95,-3.2,0xb9b3a6));
+g=grp('lid',7.2);const LID=box(g,'lid',4.4,.12,4.4,0,2.05,0,0xbfc3c9,{metalness:.7,roughness:.3});
+const FG=new T.Group(),CV=[],FM=mk('fibers',0xf0e4bd,{roughness:.4}),PS=[];S.add(FG);
+/* 光粒子：c 為偶數＝雷射→FAU 的連續光（青、恆定）；奇數＝FAU→MPO 的調變光（紫；bit 1 亮大、bit 0 暗小——MRM 消光比有限，暗不等於全黑） */
+/* M4-B：CWM / MM1 / MM0 透明度每幀由 OPT 的光功率決定（optVis），亮度＝示意，非真實色彩（近紅外光不可見） */
+const CWM=new T.MeshBasicMaterial({color:0x3ee0c0,transparent:true}),MM1=new T.MeshBasicMaterial({color:0xa27bff,transparent:true}),MM0=new T.MeshBasicMaterial({color:0xa27bff,transparent:true,opacity:.28}),SG=new T.SphereGeometry(.07,8,6);
+for(let c=0;c<4;c++)for(let k=0;k<8;k++){const m=new T.Mesh(SG,c%2?MM1:CWM);m.visible=false;S.add(m);PS.push({m,c,k})}
+/* M4-A 電訊號粒子（橘色小方塊，與圓形光粒子區分）：ASIC 邊緣 → 中介層 RDL → EIC → MRM；每側 2 條通道 × 8 顆，bit 1 亮、bit 0 暗小 */
+const EM1=new T.MeshBasicMaterial({color:0xff8a2a}),EM0=new T.MeshBasicMaterial({color:0xff8a2a,transparent:true,opacity:.3}),EG=new T.BoxGeometry(.1,.1,.1),EP=[];
+[-1,1].forEach(s=>[-.22,.22].forEach(z=>{for(let k=0;k<8;k++){const m=new T.Mesh(EG,EM1);m.visible=false;S.add(m);EP.push({m,s,z,k})}}));
+/* M4-B 耦合標記（每側）：晶片波導出光點 sp → 光束線 ln → FAU 光纖芯位置 fp；顏色依單面耦合效率 η（綠→紅） */
+const XM=[];[1,-1].forEach(s=>{const sm=new T.MeshBasicMaterial({color:0x3ee0c0}),sp=new T.Mesh(new T.SphereGeometry(.045,10,8),sm),fp=new T.Mesh(new T.SphereGeometry(.06,12,8),sm),
+ ln=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(),new T.Vector3()]),new T.LineBasicMaterial({color:0x3ee0c0}));S.add(sp,fp,ln);XM.push({s,sm,sp,fp,ln})});
+/* 電路徑折線每幀依「距離 x 位移」與「爆炸圖/抬升 y 位移」重算，因此與滑桿、分離圖層永遠一致 */
+function lane(s,z){const V=(a,b,c)=>new T.Vector3(a,b,c),oD=off(REG.die[0],'die'),oI=off(REG.interposer[0],'interposer'),oE=off(REG.engine[0],'engine'),oR=off(REG.rings[0],'rings'),dx=LAY.dx,g=LAY.g;
+ return [V(s*1.45,1.45+oD,z),V(s*1.75,1.29+oI,z),V(s*(1.6+g),1.29+oI,z),V(s*(1.75+g),1.64+oE,z),V(s*(3.1+dx),1.64+oE,z),V(s*(3.95+dx),1.57+oR,z*1.14)]}
+function along(pts,u,out){let tot=0;const d=[];for(let i=1;i<pts.length;i++){d.push(pts[i].distanceTo(pts[i-1]));tot+=d[i-1]}let r=u*tot;for(let i=0;i<d.length;i++){if(r<=d[i]||i==d.length-1)return out.copy(pts[i]).lerp(pts[i+1],Math.min(1,r/d[i]));r-=d[i]}}
+/* 每個步驟在 3D 中對應的元件與發光色（4、5 步為遠端接收端，3D 無模型 → 不發光，左上狀態列說明） */
+const STP=[['die','ubump','interposer'],['engine'],['rings','wg','laser'],['fibers'],[],[]],STC=[0xff7a1a,0xff7a1a,0x2fe0c0,0x8f5cff,0,0];
+function glow(t){const a=STP[state.stage]||[],k=.45+.35*Math.sin(t*7);for(const id in MAT)MAT[id].forEach(m=>{if(a.includes(id))m.emissive.setHex(STC[state.stage]).multiplyScalar(k);else m.emissive.setHex(id==SEL?0x6b3a12:m.userData.e)})}
+const off=(e,pid)=>e.lv*EX*.6+(pid==SEL?LIFT*3:0);
+/* 依 state.dist 重算光引擎群組 x 位移、中介層寬度、C4 數量、RDL 走線、距離標尺、散熱蓋寬度（只改 x；y 仍由爆炸圖/抬升 off() 負責，兩者疊加） */
+function applyLayout(){LAY=OptiKit.cpoLayout(state.dist);LD=state.dist;const Y=1.27;
+ IP.scale.x=LAY.W/9.6;UF.scale.x=(LAY.W-.1)/9.5;LID.scale.x=LAY.lid/2.2;
+ const nx=Math.min(28,Math.round((LAY.W-.4)/.42)),pts=grid(nx,12,.42,0,.97,0),d=new T.Object3D();C4M.count=pts.length;pts.forEach((p,i)=>{d.position.set(p[0],p[1],p[2]);d.updateMatrix();C4M.setMatrixAt(i,d.matrix)});C4M.instanceMatrix.needsUpdate=true;
+ DYN.forEach(o=>{IPG.remove(o);o.geometry.dispose()});DYN.length=0;
+ const len=LAY.g-.1,add=(a,col)=>{const o=new T.Line(new T.BufferGeometry().setFromPoints(a),new T.LineBasicMaterial({color:col}));IPG.add(o);DYN.push(o)};
+ [-1,1].forEach(s=>{[-1,-.6,-.2,.2,.6,1].forEach(z=>{const a=[];for(let k=0;k<=8;k++)a.push(new T.Vector3(s*(1.7+k*len/8),Y,z+Math.sin(k+z*5)*.08));add(a,0xd6ad70)});
+  const x0=s*1.6,x1=s*(1.6+LAY.g),zz=1.55,yy=1.28;add([new T.Vector3(x0,yy,zz),new T.Vector3(x1,yy,zz)],0xE8833A);[x0,x1].forEach(x=>add([new T.Vector3(x,yy,zz-.12),new T.Vector3(x,yy,zz+.12)],0xE8833A))})}
+function fibers(){while(FG.children.length){const c=FG.children[0];FG.remove(c);c.geometry.dispose()}CV.length=0;const y=off(REG.fibers[0],'fibers')+FV.y,V=(a,b,c)=>new T.Vector3(a,b,c),fz=FV.z;
+ [-1,1].forEach(s=>{const dx=LAY.dx+FV.gx;/* M4-B：FAU 端點跟著 FAU 放大視覺位移 */
+  const A=new T.CubicBezierCurve3(V(s*7.3,1.15,2.5),V(s*(6.3+dx*.5),1.4,1.9),V(s*(6+dx),1.5+y,.5+fz),V(s*(4.8+dx),1.5+y,.25+fz)),B=new T.CubicBezierCurve3(V(s*(4.8+dx),1.5+y,-.25+fz),V(s*(6+dx),1.5+y,-.6+fz),V(s*(6.6+dx*.5),1.2,-2.4),V(s*7.9,1,-3));
+  [A,B].forEach(c=>{CV.push(c);const m=new T.Mesh(new T.TubeGeometry(c,28,.045,6,false),FM);m.userData.pid='fibers';FG.add(m)})})}
+/* M4-B：FAU 群組（fibers 且有 sx 的兩側小方塊）另加 FV：x＝軸向間隙、y＝垂直偏移、z＝水平橫向偏移（皆為放大後的示意位移） */
+function upd(){for(const k in REG)REG[k].forEach(e=>{const fa=k=='fibers'&&e.sx;e.g.position.y=off(e,k)+(fa?FV.y:0);e.g.position.x=e.sx?e.sx*(LAY.dx+(fa?FV.gx:0)):0;e.g.position.z=fa?FV.z:0});if(state.dist!=LD)applyLayout();const k=EX+'|'+LIFT+'|'+SEL+'|'+state.dist+'|'+FV.gx+'|'+FV.y+'|'+FV.z;if(k!=FK){FK=k;fibers()}}
+/* M4-B：state 變更的唯一入口 → 重算 OPT → 同步 3D 外觀、面板、原理圖 */
+const VS={xy:.05,z:.008};/* 視覺放大：1 µm 橫向 → 0.05 scene，1 µm 間隙 → 0.008 scene（非真實比例；FAU 方塊寬 0.3，6 µm 時位移 0.3 清楚可見） */
+const pv=dbm=>Math.min(1,Math.max(.06,(dbm+14)/24));/* 光功率 dBm → 粒子不透明度（示意映射） */
+function optSet(p){Object.assign(state,p||{});if(p&&('tAmb' in p||'heatP' in p||'heatOn' in p||'laserL' in p))LKM='';OPT=OptiKit.cpoOptics(state);PERF=OptiKit.cpoPerf(state,OPT);const o=OPT;
+ FV={gx:o.z*VS.z,y:o.y*VS.xy,z:o.x*VS.xy};
+ const c=new T.Color().setHSL(.33*Math.min(1,Math.max(0,(o.eta-.3)/.7)),.85,.5);XM.forEach(m=>{m.sm.color.copy(c);m.ln.material.color.copy(c)});
+ const rc=new T.Color(0x7d8590).lerp(new T.Color(0x8ff0dc),Math.min(1,Math.max(0,o.cRel)));(MAT.rings||[]).forEach(m=>m.color.copy(rc));
+ const hk=o.Ph/OptiKit.cpoOptics.K.PhMax;HTM.emissive.setRGB(hk,hk*.3,hk*.05);HTM.color.setHex(o.on?0xb0704a:0x6a5a50);
+ o.vis={cw:pv(o.PindBm),hi:pv(o.PfbdBm),lo:pv(o.PfddBm)*.6,led:Math.min(1,Math.max(.25,(o.PLdBm+2)/18))};
+ optPanel();perfPanel();optSch()}
+function hl(){for(const k in MAT)MAT[k].forEach(m=>m.emissive.setHex(k==SEL?0x6b3a12:m.userData.e))}
+function setVis(id,b){VIS[id]=b;(REG[id]||[]).forEach(e=>e.g.visible=b);if(id=='fibers')FG.visible=b}
+/* ---------- 標籤（每個元件都有；專業縮寫＋中文） ---------- */
+const lab=(pid,zh,en,idx,x,y,z)=>{const o=new T.Object3D();o.position.set(x,y,z);REG[pid][idx].g.add(o);const e=document.createElement('div');e.className='lb';e.onclick=()=>sel(pid);$('#labs').appendChild(e);LB.push({pid,zh,en,o,e})};
+lab('substrate','Substrate 封裝基板','Substrate',0,-5.9,.65,3.2);lab('copper','Cu 內層銅','Inner Cu',0,6,.7,-1);lab('bga','BGA 焊球','BGA Ball',0,-4.4,.2,4.1);
+lab('c4','C4 覆晶凸塊','C4 Bump',0,4.4,.97,2.3);lab('underfill','Underfill 底部填充膠','Underfill',0,-4.8,1,1.4);lab('interposer','Interposer 中介層','Interposer',0,4.75,1.26,-2.2);
+lab('ubump','µBump 微凸塊','µBump',0,1.65,1.31,1.7);lab('die','ASIC 運算晶片','ASIC',0,-.5,1.76,.6);lab('lid','Lid 散熱蓋','Lid',0,1.7,2.1,1.7);
+lab('engine','PIC 光子晶片','PIC',1,4.3,1.43,1);lab('engine','EIC 電子晶片','EIC',0,-3.1,1.62,-.4);lab('rings','MRM 微環調變器','MRM Microring',0,3.95,1.6,-.75);lab('wg','WG 矽波導','Si Waveguide',0,4.15,1.55,.9);
+lab('laser','ELS 外接雷射源','ELS Laser Source',0,-8.4,1.5,3);lab('fibers','FAU 光纖陣列','FAU Fiber Array',0,4.62,1.7,-.5);lab('fibers','MPO 光纖連接器','MPO Connector',2,8.4,1.35,-3.2);
+const V3=new T.Vector3();
+function labelText(){LB.forEach(l=>{const t=L=='zh'?l.zh:l.en;l.e.textContent=t;l.w=[...t].reduce((s,c)=>s+(c.charCodeAt(0)>255?10:5.6),18)})}
+function labels(){const W=cv.clientWidth,H=cv.clientHeight,a=[],done=[],top=state.schem?$('#sch').offsetTop-10:1e9;/* 原理圖開啟時，落在浮層後方的標籤隱藏 */
+ LB.forEach(l=>{let on=LAB&&VIS[l.pid]!==false;if(on){l.o.getWorldPosition(V3);V3.project(C);l.x=(V3.x+1)/2*W+6;l.y=(1-V3.y)/2*H-7;if(l.y>top)on=false}l.e.style.display=on?'':'none';if(on){l.e.classList.toggle('on',l.pid==SEL);a.push(l)}});
+ a.sort((p,q)=>p.y-q.y);
+ a.forEach(l=>{let y=l.y,hit=true,n=0;while(hit&&n++<14){hit=false;for(const q of done)if(l.x<q.x+q.w&&q.x<l.x+l.w&&Math.abs(y-q.yy)<15){y=q.yy+15;hit=true}}l.yy=y;l.e.style.transform='translate('+l.x+'px,'+y+'px)';done.push(l)})}
+/* ---------- 相機 / 互動 ---------- */
+let th=.55,ph=1.05,rd=29;const tg=new T.Vector3(0,1.8,0);
+function cam(){tg.y=1.3+EX*1.6;const r=rd*Math.max(1,1.25/C.aspect);C.position.set(tg.x+r*Math.sin(ph)*Math.sin(th),tg.y+r*Math.cos(ph),tg.z+r*Math.sin(ph)*Math.cos(th));C.lookAt(tg)}
+let dn=null;
+cv.addEventListener('pointerdown',e=>{dn={x:e.clientX,y:e.clientY,m:0};cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(!dn)return;const dx=e.clientX-dn.x,dy=e.clientY-dn.y;dn.m+=Math.abs(dx)+Math.abs(dy);th-=dx*.006;ph=Math.min(1.5,Math.max(.2,ph-dy*.006));dn.x=e.clientX;dn.y=e.clientY});
+cv.addEventListener('pointerup',e=>{if(dn&&dn.m<5)pick(e);dn=null});
+const zoom=e=>{e.preventDefault();rd=Math.min(45,Math.max(10,rd*(1+e.deltaY*.001)))};
+cv.addEventListener('wheel',zoom,{passive:false});
+/* M4-A 修正：游標停在 3D 標籤上時滾輪也能縮放（標籤仍可點選；只補接滾輪，不改點擊/拖曳） */
+$('#labs').addEventListener('wheel',zoom,{passive:false});
+const RC=new T.Raycaster(),mv=new T.Vector2();
+function pick(e){const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);RC.setFromCamera(mv,C);
+ const h=RC.intersectObjects(PICK.concat(FG.children).filter(o=>VIS[o.userData.pid]!==false),false)[0];if(h)sel(h.object.userData.pid)}
+/* 原理圖開啟時把 3D 畫面往上平移（相機 view offset），讓模型落在浮層上方的可見區；標籤投影與點選射線使用同一相機，仍然對齊 */
+let VO='';
+function vOff(){const w=cv.clientWidth,h=cv.clientHeight,sh=state.schem?$('#sch').offsetHeight:0,k=w+'|'+h+'|'+sh;if(k==VO||!w||!h)return;VO=k;const o=sh?Math.min(h*.42,(sh+72)/2):0;if(o)C.setViewOffset(w,h,0,o,w,h);else C.clearViewOffset()}
+new ResizeObserver(()=>{const w=cv.clientWidth,h=cv.clientHeight;if(w&&h){R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}dock()}).observe($('#vp'));
+/* M5.5：3D 底部控制的停靠。3D 寬度放不下「兩個小滑桿＋工具列」時加上 .nar（滑桿橫跨底部、工具列移到上方）；
+   --bb = 底部控制最上緣到 3D 底部的距離，原理圖與參考卡都停在它上方，不會蓋住滑桿與工具列 */
+function dock(){const vp=$('#vp'),ex=$('#ex'),tx=$('#tb');if(!vp.clientWidth)return;vp.classList.toggle('nar',vp.clientWidth<306+tx.offsetWidth+40);
+ vp.style.setProperty('--exh',(ex.offsetHeight+20)+'px');vp.style.setProperty('--bb',(vp.clientHeight-Math.min(ex.offsetTop,tx.offsetTop)+8)+'px')}
+const tb=document.querySelectorAll('#tb button');/* 0 重設 1 放大 2 縮小 3 自動展示 4 標籤 5 原理圖 6 剖面 7 規格 */
+tb[0].onclick=()=>{th=.55;ph=1.05;rd=29};tb[1].onclick=()=>rd=Math.max(10,rd*.85);tb[2].onclick=()=>rd=Math.min(45,rd*1.18);
+tb[3].onclick=()=>{AUTO=!AUTO;tb[3].classList.toggle('on',AUTO);tb[3].textContent=AUTO?'❚❚':'▶'};
+tb[4].onclick=()=>{LAB=!LAB;tb[4].classList.toggle('on',LAB)};
+tb[5].onclick=()=>togSch(!state.schem);tb[6].onclick=()=>togRef('sec');tb[7].onclick=()=>togRef('spec');
+/* Esc 依序關閉：原理圖 → 參考卡 → 看板內的指標細節 */
+document.addEventListener('keydown',e=>{if(e.key!='Escape')return;if(state.schem)togSch(false);else if(REF)togRef(REF);else if(DX){DX=null;dash()}});
+$('#exr').oninput=e=>{EX=e.target.value/100;$('#exv').textContent=e.target.value+'%'};
+/* M5.5：抬升所選層由概覽卡移到 3D 左下（與分離圖層並排）；選取元件時 sel() 歸零並由 exUI() 同步 */
+$('#lf').oninput=e=>{LIFT=e.target.value/100;$('#lv').textContent=e.target.value+'%'};
+$('#tg').onclick=()=>{$('#side').classList.toggle('c');ovUI()};
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{L=b.dataset.l;if(OptiKit.setLang)OptiKit.setLang(L);render()});
+/* ---------- 介面 ---------- */
+/* M5.5：選取只更新與選取有關的區塊（左側概覽、清單、剖面卡、抬升滑桿、左上標示），不重繪右側控制組（不打斷操作、不改捲動位置） */
+function sel(id){SEL=id;LIFT=0;DSC=false;hl();selUI()}
+function selUI(){const d=D[L],p=PM[SEL];$('#chip').textContent=d.sel+' '+(p?(L=='zh'?p.z:p.e):'—');ovUI();side();refUI();exUI()}
+/* 初始畫面（M3：底部四個學習階段已由三課程選單取代；此處等同原本預設的「3 光電整合」狀態：散熱蓋隱藏、分離 45%、選取光引擎、概覽分頁、未通電） */
+/* ---------- M4-A 運行 / 原理圖：所有入口（工具列、浮層、右側面板）都呼叫這幾個函式，避免各自維護狀態 ---------- */
+function setRun(b){state.running=b;state.stage=b?0:-1;state.focus=null;RT0=performance.now();if(!b)hl();sigUI();optPanel();perfPanel();stageUI()}
+/* 原理圖與剖面／規格參考卡互斥：同時只開一個，避免浮層重疊 */
+function togSch(b){state.schem=b;tb[5].classList.toggle('on',b);if(b&&REF){REF=null;refUI()}schem();dock()}
+function togRef(k){REF=REF==k?null:k;if(REF&&state.schem)togSch(false);refUI()}
+function refUI(){const el=$('#ref'),d=D[L],u=d.ui,zh=L=='zh';el.hidden=!REF;tb[6].classList.toggle('on',REF=='sec');tb[7].classList.toggle('on',REF=='spec');if(!REF)return;
+ const body=REF=='sec'?xsec()+'<p class="note">'+d.xl+'</p>'
+  :SP.map((a,k)=>'<div class="sg">'+d.sg[k]+'</div><div class="tbl">'+a.map(r=>'<div><span>'+(zh?r[0]+' '+r[1]:r[1])+'</span><b>'+r[2]+'</b></div>').join('')+'</div>').join('')+'<p class="note" style="color:var(--mut)">'+d.src+'</p>';
+ const sc=el.scrollTop;el.innerHTML='<div class="shd"><b>'+(REF=='sec'?u.secT:u.specT)+'</b><span class="sp"></span><button class="x" data-rclose title="'+u.close+' (Esc)">✕</button></div>'+body;el.scrollTop=sc}
+$('#ref').onclick=e=>{if(e.target.closest('[data-rclose]')){togRef(REF);return}const q=e.target.closest('[data-p]');if(q)sel(q.dataset.p)};
+/* 抬升滑桿：顯示目前所選元件；未選取時停用並提示，所選元件被隱藏時也提示 */
+function exUI(){const u=D[L].ui,p=PM[SEL],dis=!p,hid=!dis&&VIS[SEL]===false,lf=$('#lf');
+ $('#exl').textContent=D[L].ex;$('#lfl').textContent=dis?u.liftNo:u.lift;lf.disabled=dis;lf.value=LIFT*100;$('#lv').textContent=dis?'—':Math.round(LIFT*100)+'%';
+ $('#lfx').classList.toggle('dis',dis||hid);$('#lfx').title=dis?u.liftNo:hid?u.liftHid:u.lift+'：'+(L=='zh'?p.z:p.e)}
+function jump(i){if(state.running){RT0=performance.now()-i*DUR*1000;state.stage=i}else state.focus=state.focus===i?null:i;stageUI()}
+/* 依 state 同步：原理圖節點/連線/波形、右側步驟清單、狀態文字、3D 左上狀態列（只改 class 與文字，不重繪面板，拖曳滑桿不受影響） */
+function stageUI(){const r=state.running,s=state.stage,d=D[L],f=state.focus;
+ document.querySelectorAll('#sch [data-s],#stl [data-s]').forEach(e=>{const i=+e.dataset.s;e.classList.toggle('act',r&&i==s);e.classList.toggle('done',r&&i<s);e.classList.toggle('pv',!r&&i===f)});
+ $('#sch').classList.toggle('run',r);
+ const tx=r?d.running+' · '+d.step+' '+(s+1)+'/'+NST+'：'+d.st[s][0]:d.stopped;
+ ['#scs','#rst'].forEach(q=>{const e=$(q);if(e){e.textContent=tx;e.classList.toggle('on',r)}});
+ document.querySelectorAll('#sch [data-run],[data-pw]').forEach(b=>{b.textContent=r?d.stop:d.run;b.classList.toggle('on',r)});
+ const c=$('#sct');if(c)c.textContent=r?d.st[s][1]:f!=null?d.st[f][1]:d.s0;
+ const rb=$('#runb');rb.hidden=!r;if(r)rb.textContent=d.running+' · '+(s+1)+' '+d.st[s][0]+(s>3?'（'+d.rx3+'）':'')}
+const lgd=d=>'<div class="lgd"><span><i class="ke"></i>'+d.lg[0]+'</span><span><i class="kc"></i>'+d.lg[1]+'</span><span><i class="km"></i>'+d.lg[2]+'</span></div>';
+/* 訊號流原理圖（SVG）。data-s = 所屬步驟；波形依 bits 產生、無刻度（定性示意） */
+function schem(){const el=$('#sch');el.hidden=!state.schem;if(!state.schem)return;const d=D[L],c=d.sc,n=c.n,l=c.l;
+ const N=(k,s,x,y,w,cl)=>'<g class="sn '+cl+'" data-s="'+s+'" data-k="'+k+'"><title>'+n[k][0]+' · '+n[k][1]+'</title><rect x="'+x+'" y="'+y+'" width="'+w+'" height="40" rx="8"/><text class="t1" x="'+(x+w/2)+'" y="'+(y+17)+'">'+n[k][0]+'</text><text class="t2" x="'+(x+w/2)+'" y="'+(y+31)+'">'+n[k][1]+'</text></g>',
+  K=(s,cl,p)=>'<path class="lk '+cl+'" data-s="'+s+'" d="'+p+'" marker-end="url(#ah-'+cl.charAt(0)+')"/>',
+  X=(x,y,t,cl,id)=>'<text class="'+(cl||'lt')+'" x="'+x+'" y="'+y+'"'+(id?' id="'+id+'"':'')+'>'+t+'</text>',
+  sq=(s,x,y,w,h,lo)=>{const sw=w/8,Y=b=>(y+h*(1-(b?1:lo))).toFixed(1);let p='M'+x+','+Y(bits[0]);bits.forEach((b,i)=>{p+='V'+Y(b)+'H'+(x+(i+1)*sw).toFixed(1)});return '<path class="wv e" data-s="'+s+'" d="'+p+'"/>'},
+  bars=(s,x,y,w,h)=>'<g class="wv m" data-s="'+s+'">'+bits.map((b,i)=>'<rect x="'+(x+i*w/8+1).toFixed(1)+'" y="'+(b?y:y+h*.65).toFixed(1)+'" width="'+(w/8-2).toFixed(1)+'" height="'+(b?h:h*.35).toFixed(1)+'" opacity="'+(b?1:.35)+'"/>').join('')+'</g>',
+  mk=k=>'<marker id="ah-'+k+'" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path class="ah-'+k+'" d="M0,0L8,4L0,8z"/></marker>';
+ const svg='<svg class="sv" viewBox="0 0 820 214"><defs>'+mk('e')+mk('c')+mk('m')+'</defs>'
+  +'<rect class="bd p" x="112" y="6" width="448" height="202" rx="10"/>'+X(122,21,c.pkg,'bl')
+  +'<rect class="bd r" x="590" y="6" width="222" height="202" rx="10"/>'+X(600,21,c.rx,'bl')+X(701,202,c.rx2)+X(54,132,c.out)
+  /* 電氣路徑：ASIC → 電氣互連 → EIC → MRM */
+  +K(0,'e','M216,54H296')+X(256,47,l.ic)+X(256,68,'L = '+state.dist+' mm','lt','scL')+sq(0,222,80,70,10,0)
+  +K(1,'e','M346,74V136')+X(352,98,l.dv,'lt st')+sq(1,352,106,84,16,.08)
+  /* 光學路徑：CW 雷射 → 光波導 → MRM → 波導 → FAU → 光纖 */
+  +K(2,'c always','M100,160H296')+X(206,152,l.cw)+'<path class="wv c always" data-s="2" d="M126,186H286"/>'+X(206,201,l.cw2)
+  +K(3,'m','M392,160H446')+X(419,152,l.wg)+K(3,'m','M542,160H636')+X(589,152,l.fb)+bars(3,404,176,150,16)+X(479,203,l.md)
+  /* 遠端接收：Ge PD → 光電流 → TIA → 電壓 */
+  +K(4,'e','M690,140V78')+X(696,104,l.ph,'lt st')+sq(4,700,112,56,10,.25)
+  +K(5,'e','M740,54H806')+X(773,47,l.vo)+sq(5,746,80,56,10,0)
+  /* M4-B 即時數值（由 optSch() 填入）：雷射功率、MRM 失諧、FAU 單面效率、光纖平均功率 */
+  +X(54,196,'','lv','sxL')+X(346,196,'','lv','sxM')+X(496,134,'','lv','sxF')+X(589,176,'','lv','sxP')
+  /* M4-C：通道數／容量（MRM 與 FAU 之間）、接收端平均功率與整條鏈路品質（PD 右側） */
+  +X(478,62,'','lv','sxN')+X(776,154,'','lv','sxR')+X(776,168,'','lv','sxQ')
+  +N('asic',0,124,34,92,'e')+N('eic',1,300,34,92,'e')+N('mrm',2,300,140,92,'x')+N('las',2,8,140,92,'o always')+N('fau',3,450,140,92,'o')+N('pd',4,640,140,100,'x')+N('tia',5,640,34,100,'e')+'</svg>';
+ el.innerHTML='<div class="shd"><b>'+c.t+'</b><span class="tag">'+c.tag+'</span><span class="sp"></span><button class="pwb" data-run></button><button class="x" data-close title="Esc">✕</button></div>'+svg
+  +'<div class="sci"><span class="rs" id="scs"></span><span id="sct"></span></div><div class="flt" id="scf"></div>'+lgd(d)+'<p class="scv">'+c.cv+'<br>'+c.hint+'</p>';
+ stageUI();optSch()}
+/* M4-B：原理圖即時數值與警示框（FAU η < 50 % 或 MRM 調變失效時方塊變紅虛線） */
+function optSch(){const o=OPT,t=(id,v)=>{const e=$('#'+id);if(e)e.textContent=v};if(!$('#sxL'))return;
+ t('sxL',o.PL.toFixed(1)+' mW');t('sxM','δ '+(o.det*1000>=0?'+':'')+(o.det*1000).toFixed(0)+' pm');t('sxF','η '+(o.eta*100).toFixed(0)+' %');t('sxP',o.PfdBm.toFixed(1)+' dBm');
+ const r=PERF,qe=$('#sxQ');t('sxN','× '+r.n+' · '+capS(r.cap));t('sxR',f1(r.PrxdBm)+' dBm');if(qe){qe.textContent=D[L].p.qs[r.q];qe.setAttribute('class','lv q-'+r.q)}
+ const b=(k,v)=>{const e=$('#sch [data-k="'+k+'"]');if(e)e.classList.toggle('bad',v)};b('fau',o.eta<.5);b('mrm',o.q=='bad');b('pd',r.q=='bad');fltSch()}
+/* M7-A 故障定位：只讀 OPT／PERF 既有結果，不改任何公式。分級沿用模型既有門檻——MRM = OPT.q、接收端 = PERF.q、FAU 紅框 = η < 50 %（M4-B）；
+   新增的只有 FAU 黃框顯示門檻：兩面耦合比參考狀態多損 ≥ 1 dB（〔C〕介面門檻；門檻值與「目前最大損耗來源」同為 1 dB，但這裡以參考狀態為基準）。
+   品質下降只讓下游線條依品質變淡（最淡 0.3），不停止動畫；CPO 課沒有定義斷線條件，所以永遠不顯示「中斷」。 */
+const FLT={zh:{h:'⚠ 故障定位',ok:'✓ 故障定位：各環節正常，目前沒有明顯的訊號品質問題。',q:{warn:'臨界',bad:'不佳'},
+  mrm:['MRM 共振失配','失諧 δ {p} pm、調變對比剩 {c} % → 亮暗差變小，下游調變光變弱'],
+  fau:['FAU 耦合惡化','η {e} %、兩面耦合比最佳多損 {x} dB → 進入光纖的光功率下降'],
+  pd:['接收端訊號品質{q}','眼高指數 {h} %；主要影響：{s}'],
+  src:{fau:'FAU 耦合（{v} dB）',mrm:'MRM 失諧（{v} dB）',las:'雷射功率偏低（{v} dB）',fib:'光纖較長（{v} dB）',noise:'高符號率下的接收雜訊'},
+  note:'訊號變弱 ≠ 斷線：鏈路仍連通，只有下游線條依品質變淡。'},
+ en:{h:'⚠ Fault locator',ok:'✓ Fault locator: every stage is fine; no noticeable signal-quality problem.',q:{warn:'marginal',bad:'poor'},
+  mrm:['MRM resonance mismatch','detuning δ {p} pm, modulation contrast {c} % → smaller bright/dark gap, weaker modulated light downstream'],
+  fau:['FAU coupling degraded','η {e} %, both facets lose {x} dB more than optimum → less optical power into the fiber'],
+  pd:['Receiver signal quality {q}','eye-height index {h} %; main factor: {s}'],
+  src:{fau:'FAU coupling ({v} dB)',mrm:'MRM detuning ({v} dB)',las:'low laser power ({v} dB)',fib:'longer fiber ({v} dB)',noise:'receiver noise at high symbol rate'},
+  note:'Weaker signal ≠ broken link: the link stays up; only the downstream lines fade with quality.'}};
+function fltSch(){const el=$('#scf');if(!el)return;const o=OPT,r=PERF,F=FLT[L],cl=(v,a,b)=>Math.min(b,Math.max(a,v)),fm=(s,m)=>s.replace(/\{(\w)\}/g,(_,k)=>m[k]);
+ const fx=-r.drv.fau,lv={mrm:o.q=='good'?'':o.q,fau:o.eta<.5?'bad':fx>=1?'warn':'',pd:r.q=='good'?'':r.q};
+ ['mrm','fau','pd'].forEach(k=>{const e=$('#sch [data-k="'+k+'"]');if(e)e.classList.toggle('warn',lv[k]=='warn')});
+ /* 下游視覺：MRM→FAU 晶片波導 ∝ 調變對比；FAU→光纖與亮暗條 ∝ 接收端亮暗差（相對參考）；PD→TIA→輸出 ∝ 眼高指數 */
+ const op=(q,v)=>document.querySelectorAll(q).forEach(e=>{e.style.strokeOpacity=v;e.style.fillOpacity=v}),mk=document.querySelectorAll('#sch .lk.m'),
+  m1=cl(o.cRel,.3,1),m2=cl(r.s1,.3,1),rq=cl(.3+.7*r.EH,.3,1);
+ if(mk[0])mk[0].style.strokeOpacity=m1;if(mk[1])mk[1].style.strokeOpacity=m2;op('#sch .wv.m',m2);op('#sch [data-s="4"].lk,#sch [data-s="5"].lk,#sch .wv.e[data-s="4"],#sch .wv.e[data-s="5"]',rq);
+ const it=[];
+ if(lv.mrm)it.push([lv.mrm,F.mrm,{p:(o.det*1000>=0?'+':'')+(o.det*1000).toFixed(0),c:(o.cRel*100).toFixed(0)}]);
+ if(lv.fau)it.push([lv.fau,F.fau,{e:(o.eta*100).toFixed(0),x:fx.toFixed(1)}]);
+ if(lv.pd){const dv=r.drv,ks=['fau','mrm','las','fib'].sort((a,b)=>dv[a]-dv[b]),k=dv[ks[0]]<=-.5?ks[0]:'noise';
+  it.push([lv.pd,F.pd,{q:F.q[lv.pd],h:(Math.max(0,r.EH)*100).toFixed(0),s:fm(F.src[k],{v:dv[k]>=0?'+'+dv[k].toFixed(1):dv[k].toFixed(1)})}])}
+ el.classList.toggle('ok',!it.length);
+ el.innerHTML=!it.length?F.ok:'<b>'+F.h+'</b>'+it.map((x,i)=>'<span class="fi q-'+x[0]+'">'+'①②③'.charAt(i)+' '+fm(x[1][0],x[2])+'</span><span class="fr">'+fm(x[1][1],x[2])+'</span>').join('')+'<small>'+F.note+'</small>'}
+$('#sch').onclick=e=>{if(e.target.closest('[data-close]')){togSch(false);return}if(e.target.closest('[data-run]')){setRun(!state.running);return}const g=e.target.closest('[data-s]');if(g)jump(+g.dataset.s)};
+function init(){ALL.forEach(id=>setVis(id,NOLID.includes(id)));EX=.45;SEL='engine';state.running=false;state.stage=-1;state.focus=null;LIFT=0;$('#exr').value=EX*100;$('#exv').textContent=Math.round(EX*100)+'%';hl();render()}
+/* M5.5 左側 ①概覽：所選元件卡（說明預設 3 行，可展開全文）＋課程簡介（可收合）。原右側「概覽」分頁的內容（抬升滑桿改到 3D 左下） */
+function ovUI(){const d=D[L],u=d.ui,p=PM[SEL],zh=L=='zh';if(!p){$('#ovp').innerHTML='';return}
+ $('#ovp').innerHTML='<div class="card ovc"><div class="ch"><b>'+(zh?p.z:p.e)+'</b><i>'+(zh?p.e:p.z)+'</i></div><p class="dsc'+(DSC?' full':'')+'" data-dsc>'+(zh?p.dz:p.de)+'</p><button class="dmo" data-dsc>'+(DSC?u.less:u.more)+'</button>'
+  +p.m.map(x=>'<div class="met"><span>'+(zh?x[0]:x[1])+'</span><b>'+x[2]+'</b></div>').join('')+'</div>'
+  +'<details class="xp" data-x="intro"'+(OPEN.intro?' open':'')+'><summary>'+u.intro+'</summary><p class="note">'+d.note+'</p></details>';
+ const ds=$('#ovp .dsc');if(!DSC&&ds.clientHeight&&ds.scrollHeight<=ds.clientHeight+1)$('#ovp .dmo').style.display='none'}
+/* M5.5 左側 ②訊號流程：運行鈕與目前步驟永遠可見；六個步驟、0/1 示意、圖例與說明收在可展開區塊（原右側「光電訊號 → 訊號流程」） */
+function sigUI(){const d=D[L],u=d.ui,PW=state.running,c=(k,f)=>'<div class="bits '+k+'">'+bits.map(f).join('')+'</div>';
+ $('#ovs').innerHTML='<div class="sgb"><div class="sgh"><b>'+u.sig+'</b><button class="pwb'+(PW?' on':'')+'" data-pw>'+(PW?d.stop:d.run)+'</button></div><span class="rs" id="rst"></span>'
+  +'<details class="xp" data-x="sig"'+(OPEN.sig?' open':'')+'><summary>'+u.sigX+'</summary><div class="stl" id="stl">'+d.st.map((s,i)=>'<div class="st" data-s="'+i+'"><em>'+(i+1)+'</em><div><b>'+s[0]+'</b>'+(i>3?'<u>'+d.rx+'</u>':'')+'<small>'+s[1]+'</small></div></div>').join('')+'</div>'
+  +'<span class="rw">'+d.rw[0]+'</span>'+c('in',(b,i)=>'<i data-b="'+i+'" class="'+(b?'h':'')+'">'+b+'</i>')+'<span class="rw">'+d.rw[1]+'</span>'+c('lt',b=>'<i class="'+(PW?b?'h':'l':'')+'">'+(PW?b?'●':'○':'–')+'</i>')+'<span class="rw">'+d.rw[2]+'</span>'+c('',b=>'<i class="'+(PW&&b?'h':'')+'">'+(PW?b:'–')+'</i>')
+  +lgd(d)+'<p class="xs2">'+d.cav+'</p></details></div>';stageUI()}
+$('#ovp').onclick=e=>{if(e.target.closest('[data-dsc]')){DSC=!DSC;ovUI()}};
+$('#ovs').onclick=e=>{const b=e.target.closest('[data-b]');if(b){bits[+b.dataset.b]^=1;sigUI();schem();return}if(e.target.closest('[data-pw]')){setRun(!state.running);return}const s=e.target.closest('#stl [data-s]');if(s)jump(+s.dataset.s)};
+/* 摺疊區塊開合狀態（左側、右側、看板細節都適用）在重繪後保留 */
+document.addEventListener('toggle',e=>{const x=e.target.dataset&&e.target.dataset.x;if(x)OPEN[x]=e.target.open},true);
+/* M5.5 左側 ③元件清單（獨立捲動） */
+function side(){const d=D[L];let h='';$('#st2').textContent=d.list+' · '+P.length+d.u;[0,1].forEach(k=>{const a=P.filter(p=>p.g==k);h+='<div class="gh">'+d.g[k]+' · '+a.length+'</div>';a.forEach(p=>{h+='<div class="it'+(p.i==SEL?' on':'')+'" data-p="'+p.i+'"><div class="n"><b>'+(L=='zh'?p.z:p.e)+'</b><small>'+(L=='zh'?p.e:p.z)+'</small></div><button class="eye" data-e="'+p.i+'">'+eye(VIS[p.i]===false)+'</button></div>'})});$('#sl').innerHTML=h}
+$('#sl').onclick=e=>{const b=e.target.closest('[data-e]');if(b){const id=b.dataset.e;setVis(id,VIS[id]===false);side();exUI();return}const it=e.target.closest('[data-p]');if(it)sel(it.dataset.p)};
+function xsec(){const r=(n,x0,dx,y,rr,f)=>{let s='';for(let i=0;i<n;i++)s+='<circle cx="'+(x0+i*dx)+'" cy="'+y+'" r="'+rr+'" fill="'+f+'"/>';return s},t=id=>'<title>'+(L=='zh'?PM[id].z:PM[id].e)+'</title>',q=(id,b)=>'<g data-p="'+id+'"'+(SEL==id?' class="sel"':'')+'>'+t(id)+b+'</g>';let tsv='';for(let x=36;x<=284;x+=16)tsv+='<line x1="'+x+'" y1="56" x2="'+x+'" y2="67" stroke="#d6ad70" stroke-width="2"/>';
+ return '<svg class="xs" viewBox="0 0 320 146">'+q('die','<rect x="112" y="24" width="96" height="22" fill="#17181c"/><text x="160" y="39">ASIC</text>')+q('engine','<rect x="28" y="36" width="68" height="10" fill="#1c6b5e"/><rect x="40" y="26" width="26" height="10" fill="#202226"/><rect x="224" y="36" width="68" height="10" fill="#1c6b5e"/><rect x="254" y="26" width="26" height="10" fill="#202226"/>')
+ +q('underfill','<rect x="26" y="47" width="268" height="6" fill="#e0b46a" opacity=".45"/>')+q('ubump',r(8,32,9,50,2.2,'#d6ad70')+r(11,116,9,50,2.2,'#d6ad70')+r(8,228,9,50,2.2,'#d6ad70'))
+ +q('interposer','<rect x="20" y="53" width="280" height="16" fill="#24344a" fill-opacity=".9"/>'+tsv)+q('c4',r(17,28,16,74,3.6,'#b8bcc4'))
+ +q('substrate','<rect x="12" y="80" width="296" height="34" fill="#2f6f5a"/>')+q('copper','<path d="M18 90H302M18 98H302M18 106H302" stroke="#c9803f" stroke-width="2.5"/>')+q('bga',r(11,30,28,122,8,'#c9c9cf'))+'<rect x="4" y="130" width="312" height="10" fill="#4a4a50"/><text x="160" y="138">PCB</text></svg>'}
+function dist(){const d=D[L],r=OptiKit.cpoElec(state.dist,PERF.fN),k=(r.L-2)/28,x=76+k*150,f=(v,n)=>v.toFixed(n);const sl=$('#scL');if(sl)sl.textContent='L = '+f(r.L,0)+' mm';if(!$('#dd'))return;
+ $('#dd').textContent=f(r.L,0)+' mm';$('#dl').textContent=f(r.il,1)+' dB';$('#dr').textContent='+'+f(r.dIL,1)+' dB';$('#dp').textContent=f(r.pRel,0)+' %';$('#do').textContent=d.oz;$('#eng').setAttribute('x',x);$('#engt').setAttribute('x',x+30);$('#ln').setAttribute('x2',x)}
+/* ---------- M5.5 右側：上方固定的五項鏈路效能看板（#dash）＋ 下方三組控制（#gtab / #pb） ----------
+   看板與控制組都只讀同一個 PERF / OPT（optSet() 唯一入口），不另寫公式。切換控制組只改 SUB，不動任何物理參數。
+   panel(sc)：重建控制組；sc 省略 = 保留目前捲動位置（改容量、改耦合結構等不會讓畫面跳回頂端） */
+function panel(sc){const d=D[L],u=d.ui,pb=$('#pb'),keep=pb.scrollTop;dash();
+ $('#gtab').innerHTML=u.g.map((n,i)=>'<button data-sub="'+i+'" title="'+u['g'+i]+'"'+(i==SUB?' class="on"':'')+'>'+n+'</button>').join('');
+ pb.innerHTML=SUB==0?xpHTML(d):SUB==1?distHTML(d):txHTML(d);
+ if(SUB==1)dist();optPanel();perfPanel();stageUI();pb.scrollTop=sc==null?keep:sc}/* 捲動位置要在內容（比較表、圖）填好之後才還原，否則會被瀏覽器夾回 0 */
+/* 看板：五格（容量／損耗／功耗／延遲／訊號品質），每格 = 名稱與計算範圍、數值、精簡說明、小長條、ⓘ。點格子 → 在看板內展開該指標的完整公式與細節（#dx），不跳頁 */
+function dash(){const d=D[L],u=d.ui,dx=$('#dx'),ks=dx?dx.scrollTop:0;
+ $('#dash').innerHTML='<div class="dh"><b>'+u.dash+'</b><i>'+u.dtag+'</i></div><div class="d5">'+['cap','loss','pwr','lat','eye'].map((k,i)=>{
+   return '<button class="dt'+(k=='eye'?' w2':'')+(DX==k?' on':'')+'" data-dx="'+k+'" title="'+u.kt[k]+'"><small>'+u.k[i].replace(/^([^·]+)(·.*)$/,'$1<span class="ksc">$2</span>')+'</small><b id="k_'+k+'"></b><span class="ds" id="ks_'+k+'"></span><span class="dbar"><i id="kb_'+k+'"></i></span><em>i</em></button>'}).join('')
+  +'</div><p id="dst"></p><div id="dx"'+(DX?'':' hidden')+'>'+(DX?'<div class="shd"><b>'+d.p[DX].h+'</b><span class="sp"></span><button class="x" data-dxc title="'+u.close+' (Esc)">✕</button></div><div class="chip" style="position:static;display:inline-block;margin:0 0 4px">'+d.edu+'</div>'+perfHTML(d,DX):'')+'</div>';
+ if(DX)$('#dx').scrollTop=ks;perfPanel()}
+/* 控制組 ②封裝互連：原 M2 距離滑桿（與 3D 連動不變）。功耗、延遲結果看上方看板，這裡只留電氣路徑本身的數值；長說明收合 */
+function distHTML(d){const u=d.ui;return '<p class="xs2" style="margin:4px 0 6px">'+u.g1+'</p><div class="h2">'+d.h2+'</div><svg viewBox="0 0 300 40" width="100%"><line id="ln" x1="66" y1="20" x2="76" y2="20" stroke="#E8833A" stroke-width="2"/><rect x="6" y="8" width="60" height="24" rx="4" fill="#17181c"/><text x="36" y="24" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">ASIC</text><rect id="eng" x="76" y="8" width="60" height="24" rx="4" fill="#1c6b5e"/><text id="engt" x="106" y="24" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">PIC·EIC</text></svg>'
+ +'<input type="range" id="ds" min="2" max="30" step="1" value="'+state.dist+'"><div class="chip" style="position:static;display:inline-block;margin:4px 0 2px">'+d.edu+'</div>'
+ +[['mL','dd'],['mIL','dl'],['mD','dr'],['mE','dp'],['mO','do']].map(a=>'<div class="met"><span>'+(a[0]=='mIL'?d.mIL.replace('{f}',fq(PERF.fN)):d[a[0]])+'</span><b id="'+a[1]+'"></b></div>').join('')
+ +'<details class="xp" data-x="dn"'+(OPEN.dn?' open':'')+'><summary>'+u.dnH+'</summary><p class="xs2">'+d.dn+'</p></details>'}
+/* 控制組 ③傳輸配置：容量情境（800G／1.6T／3.2T）、通道配置、光纖長度示例 ＋ 三容量並排比較表（#cmp） */
+function txHTML(d){const p=d.p,u=d.ui,R=OptiKit.cpoPerf.RATES,r=PERF;
+ return '<p class="xs2" style="margin:4px 0 0">'+u.g2+'</p><div class="card kpi"><div class="rw" style="margin:0 0 3px">'+u.cap+'</div><div class="seg rt">'+Object.keys(R).map(k=>'<button data-rate="'+k+'"'+(k==r.rate?' class="on"':'')+'>'+k+(R[k].front?'<sup>*</sup>':'')+'</button>').join('')+'</div>'
+  +'<div class="cfr"><span>'+p.cfg+'</span>'+R[r.rate].cfg.map((c,i)=>'<button class="pwb'+(i==r.ci?' on':'')+'" data-cfg="'+i+'">'+c[0]+' × '+c[1]+'G</button>').join('')+'</div><p class="xs2" id="kcf" style="margin-top:4px"></p>'
+  +'<span class="rw">'+u.fl+'</span><div class="xrow" style="margin-top:0">'+OptiKit.cpoPerf.K.fibers.map(m=>'<button class="pwb'+(m==r.fm?' on':'')+'" data-fm="'+m+'">'+m+' m</button>').join('')+'</div></div>'
+  +'<div class="h2" style="margin-top:12px">'+u.cmpT+'</div><p class="xs2" style="margin:0">'+u.cmpH+'</p><table class="cmp" id="cmp"></table><p class="xs2" id="cmpc"></p>'}
+/* 三容量並排：目前容量 = PERF（與看板完全相同）；另外兩種用同一個 state 的「副本」＋ 該容量預設配置試算，絕不寫回 state */
+function cmpUI(){const d=D[L],u=d.ui,p=d.p,R=OptiKit.cpoPerf.RATES,ks=Object.keys(R),o=OPT;
+ const rs=ks.map(k=>k==PERF.rate?PERF:OptiKit.cpoPerf(Object.assign({},state,{rate:k,lanes:0}),OPT)),on=i=>ks[i]==PERF.rate?' class="on"':'';
+ const row=(lb,f)=>'<tr><td>'+lb+'</td>'+rs.map((r,i)=>'<td'+on(i)+'>'+f(r)+'</td>').join('')+'</tr>';
+ $('#cmp').innerHTML='<thead><tr><th></th>'+rs.map((r,i)=>'<th'+on(i)+'><button data-rate="'+ks[i]+'">'+ks[i]+(R[ks[i]].front?'*':'')+'</button><small>'+r.n+' × '+r.g+'G'+(ks[i]==PERF.rate?' · '+u.cur:'')+'</small></th>').join('')+'</tr></thead><tbody>'
+  +row(u.cmpR[0],r=>capS(r.cap))+row(u.cmpR[1],r=>f1(r.lossTot)+' dB')+row(u.cmpR[2],r=>f1(r.PrxdBm)+' dBm')+row(u.cmpR[3],r=>Wt(r.tot))+row(u.cmpR[4],r=>f1(r.pJ,2)+' pJ/b')
+  +row(u.cmpR[5],r=>tS(r.lat.el+r.lat.fib))+row(u.cmpR[6],r=>tS(r.lat.pktN))+row(u.cmpR[7],r=>'<span class="q-'+r.q+'">'+p.qs[r.q]+'</span><small>'+f1(Math.max(0,r.EH)*100,0)+' %</small>')+'</tbody>';
+ $('#cmpc').textContent=fmt(u.cmpC,{x:sg(o.x),y:sg(o.y),z:f1(o.z,0),t:f1(o.Ta),h:o.on?f1(o.Ph,2)+' mW':u.hOff,p:f1(o.PL),l:f1(o.LL,3),L:f1(state.dist,0),m:PERF.fm})}
+/* ---------- M4-B 光學實驗面板：結構只在 panel() 產生一次；拖曳滑桿時只由 optPanel() 改數字與小圖，不重繪（拖曳不中斷） ---------- */
+function xpHTML(d){const x=d.x,o=OPT,K=OptiKit.cpoOptics.K,
+  sl=(id,lb,a,b,st,v,dis)=>'<label class="rw" for="'+id+'">'+lb+'<b id="v'+id+'"></b></label><input type="range" id="'+id+'" min="'+a+'" max="'+b+'" step="'+st+'" value="'+v+'"'+(dis?' disabled':'')+'>',
+  mt=(lb,id)=>'<div class="met"><span>'+lb+'</span><b id="'+id+'"></b></div>',
+  dt=(k,h,body)=>'<details class="xp" data-x="'+k+'"'+(OPEN[k]?' open':'')+'><summary>'+h+'<span class="sp"></span><em id="xs_'+k+'"></em></summary>'+body+'</details>';
+ return '<div class="h2" style="margin-top:4px">'+x.t+'</div><div class="chip" style="position:static;display:inline-block;margin:0 0 4px">'+d.edu+'</div><p class="xs2" style="margin-top:2px">'+x.how+'</p><p class="xmsg" id="xoff"></p>'
+  +'<div class="card" style="padding:9px 11px"><div class="rw" style="margin:0 0 2px">'+x.ch+'</div><div class="wf" id="xwf"></div><div class="wft"><span id="xfrom"></span><span id="xto"></span></div>'
+  +'<div class="met"><span>'+x.q+'</span><b id="xq"></b></div><p class="xs2" id="xcause"></p><div class="xrow"><button class="pwb" data-xr="all">↺ '+x.all+'</button></div></div>'
+  +dt('fau',x.fau.h,'<span class="rw">'+x.fau.cpl+'</span><div class="cps">'+['ssc','uhna','mis'].map(k=>'<button data-cpl="'+k+'"'+(state.cpl==k?' class="on"':'')+'><b>'+x.fau.cp[k][0]+'</b><small>'+x.fau.cp[k][1]+'</small></button>').join('')+'</div>'
+   +sl('fx',x.fau.x,-K.xyMax,K.xyMax,.1,state.fauX)+sl('fy',x.fau.y,-K.xyMax,K.xyMax,.1,state.fauY)+sl('fz',x.fau.z,0,K.zMax,1,state.fauZ)
+   +'<div class="xrow"><button class="pwb" data-xr="fau">⌖ '+x.fau.rs+'</button></div><div id="xfv"></div><p class="xs2" style="margin:0">'+x.fau.v1+' · '+x.fau.v2+'</p>'
+   +mt(x.fau.eta,'xeta')+mt(x.fau.fl,'xfl')+mt(x.fau.tl,'xtl')+mt(x.fau.mm,'xmm')+'<p class="xs2"><b>'+x.fau.vis+'</b></p><p class="xs2">'+x.fau.n+'</p>')
+  +dt('mrm',x.mrm.h,sl('ta',x.mrm.ta,K.Tmin,K.Tmax,.1,state.tAmb)
+   +'<div class="xrow"><button class="pwb'+(state.heatOn?' on':'')+'" data-ht>'+(state.heatOn?x.mrm.hon:x.mrm.hoff)+'</button><button class="pwb" data-lock>◎ '+x.mrm.lock+'</button></div>'
+   +sl('hp',x.mrm.hp,0,K.PhMax,.05,state.heatP,!state.heatOn)+'<p class="xmsg" id="xlk"></p><div id="xsp"></div><p class="xs2" style="margin:0">'+x.mrm.sp+'</p>'
+   +mt(x.mrm.mTa,'xta')+mt(x.mrm.mDh,'xdh')+mt(x.mrm.mTr,'xtr')+mt(x.mrm.mLr,'xlr')+mt(x.mrm.mDe,'xde')+mt(x.mrm.mT,'xtt')+mt(x.mrm.mC,'xcc')
+   +'<div class="xrow"><button class="pwb" data-xr="mrm">↺ '+x.rs+'</button></div><p class="xs2">'+x.mrm.n+'</p>')
+  +dt('las',x.las.h,sl('lp',x.las.p,K.PLmin,K.PLmax,.5,state.laserP)+sl('ll',x.las.l,K.LLmin,K.LLmax,.005,state.laserL)
+   +mt(x.las.mP,'xlp')+mt(x.las.mPic,'xlpic')+mt(x.las.mF,'xlf')+mt(x.las.mL,'xll')
+   +'<div class="xrow"><button class="pwb" data-xr="las">↺ '+x.las.rs+'</button></div><p class="xs2">'+x.las.n+'</p>')}
+const f1=(v,n)=>(+v).toFixed(n==null?1:n),sg=(v,n)=>(v>=0?'+':'')+f1(v,n);
+/* FAU 截面圖（左，真實 µm 尺度 5 px/µm）＋ 效率 vs 橫向偏移曲線（右，此耦合結構、目前間隙） */
+function fauSVG(o){const S=5,cx=56,cy=56,F=o.F,fx=cx+o.x*S,fy=cy-o.y*S,lam=o.LL/1000,fau=OptiKit.cpoOptics.fau,X=d=>132+d/6*158,Y=e=>96-e*82,dd=Math.hypot(o.x,o.y);let p='';
+ for(let i=0;i<=60;i++){const d=i/10;p+=(i?'L':'M')+X(d).toFixed(1)+','+Y(fau(o.cpl,d,0,o.z,lam).eta).toFixed(1)}
+ const md=Math.min(6,dd),me=fau(o.cpl,md,0,o.z,lam).eta;
+ return '<svg class="xv" viewBox="0 0 300 112"><line x1="6" y1="'+cy+'" x2="106" y2="'+cy+'" style="stroke:var(--line)"/><line x1="'+cx+'" y1="6" x2="'+cx+'" y2="106" style="stroke:var(--line)"/>'
+  +'<circle cx="'+cx+'" cy="'+cy+'" r="'+(F.w1*S).toFixed(1)+'" style="fill:var(--teal);fill-opacity:.3;stroke:var(--teal)"/>'
+  +'<circle cx="'+fx.toFixed(1)+'" cy="'+fy.toFixed(1)+'" r="'+(F.w2z*S).toFixed(1)+'" style="fill:none;stroke:var(--mod);stroke-width:1.8"/><circle cx="'+fx.toFixed(1)+'" cy="'+fy.toFixed(1)+'" r="1.8" style="fill:var(--mod)"/>'
+  +'<text x="'+cx+'" y="110" text-anchor="middle">±10 µm</text>'
+  +'<line x1="132" y1="96" x2="292" y2="96" style="stroke:var(--line)"/><line x1="132" y1="14" x2="132" y2="96" style="stroke:var(--line)"/><path d="'+p+'" style="fill:none;stroke:var(--br);stroke-width:1.8"/>'
+  +'<line x1="'+X(md).toFixed(1)+'" y1="14" x2="'+X(md).toFixed(1)+'" y2="96" style="stroke:var(--mod);stroke-dasharray:3 2"/><circle cx="'+X(md).toFixed(1)+'" cy="'+Y(me).toFixed(1)+'" r="3.5" style="fill:var(--mod)"/>'
+  +'<text x="128" y="18" text-anchor="end">1</text><text x="128" y="98" text-anchor="end">0</text><text x="132" y="108">0</text><text x="290" y="108" text-anchor="end">6 µm</text><text x="211" y="108" text-anchor="middle">√(x²+y²)</text><text class="tk" x="290" y="24" text-anchor="end">η '+f1(o.eta*100,0)+' %</text></svg>'}
+/* MRM 光譜圖：視窗 = 雷射波長 ±1 nm；曲線 = 目前共振；雷射線上兩點 = 亮/暗兩個位元的穿透率（差距 = 調變對比） */
+function specSVG(o,x){const lor=OptiKit.cpoOptics.lor,L0=o.LL,X=l=>24+(l-L0+1)/2*266,Y=t=>98-t*82;let p='';
+ for(let i=0;i<=160;i++){const l=L0-1+i/80;p+=(i?'L':'M')+X(l).toFixed(1)+','+Y(lor(l-o.lres)).toFixed(1)}
+ const ins=Math.abs(o.lres-L0)<=1,xl=X(L0),rx=ins?X(o.lres):(o.lres<L0?28:286);
+ return '<svg class="xv" viewBox="0 0 300 118"><line x1="24" y1="98" x2="290" y2="98" style="stroke:var(--line)"/><line x1="24" y1="16" x2="24" y2="98" style="stroke:var(--line)"/>'
+  +'<path d="'+p+'" style="fill:none;stroke:var(--br);stroke-width:1.8"/>'
+  +(ins?'<line x1="'+rx.toFixed(1)+'" y1="16" x2="'+rx.toFixed(1)+'" y2="98" style="stroke:var(--mut);stroke-dasharray:3 3"/><text x="'+rx.toFixed(1)+'" y="12" text-anchor="middle">'+x.res+'</text>'
+     :'<text class="tk" x="'+rx+'" y="58" text-anchor="'+(o.lres<L0?'start':'end')+'">'+(o.lres<L0?'← ':'')+x.res+' '+f1(o.lres,2)+' nm'+(o.lres<L0?'':' →')+'</text>')
+  +'<line x1="'+xl+'" y1="16" x2="'+xl+'" y2="98" style="stroke:var(--teal);stroke-width:2"/><text x="'+(xl+4)+'" y="24" style="fill:var(--teal)">'+x.las+'</text>'
+  +'<line x1="'+xl+'" y1="'+Y(o.Tb).toFixed(1)+'" x2="'+xl+'" y2="'+Y(o.Td).toFixed(1)+'" style="stroke:var(--mod);stroke-width:5;stroke-opacity:.55"/><circle cx="'+xl+'" cy="'+Y(o.Tb).toFixed(1)+'" r="3.5" style="fill:var(--mod)"/><circle cx="'+xl+'" cy="'+Y(o.Td).toFixed(1)+'" r="3.5" style="fill:var(--card);stroke:var(--mod);stroke-width:1.5"/>'
+  +'<text x="20" y="20" text-anchor="end">1</text><text x="20" y="100" text-anchor="end">0</text><text x="24" y="112">'+f1(L0-1,2)+'</text><text x="157" y="112" text-anchor="middle">'+f1(L0,2)+' '+x.axL+'</text><text x="290" y="112" text-anchor="end">'+f1(L0+1,2)+'</text><text x="'+(xl-5)+'" y="'+(Y((o.Tb+o.Td)/2)+3).toFixed(1)+'" text-anchor="end">'+x.bd+'</text></svg>'}
+function optPanel(){const o=OPT,d=D[L],x=d.x,t=(id,v)=>{const e=$('#'+id);if(e)e.textContent=v},cq='q-'+o.q;if(!$('#xwf'))return;
+ t('xoff',state.running?'':x.off);
+ const mx=Math.max(8,...o.loss);$('#xwf').innerHTML=o.loss.map((v,i)=>'<div><span>'+x.wf[i]+'</span><i class="'+((i==1||i==4)&&o.fauDB>1||i==3&&o.q!='good'?'hot':'')+'" style="width:'+Math.min(100,v/mx*100).toFixed(0)+'%"></i><b>−'+f1(v,2)+' dB</b></div>').join('');
+ t('xfrom',x.from+' '+f1(o.PL)+' mW ('+f1(o.PLdBm)+' dBm)');t('xto','→ '+x.to+' '+f1(o.Pf,2)+' mW ('+f1(o.PfdBm)+' dBm)');
+ const q=$('#xq');q.textContent=x.qs[o.q]+' · '+f1(o.cRel*100,0)+' %';q.className=cq;t('xcause',x.cause[o.cause]);
+ t('xs_fau','η '+f1(o.eta*100,0)+' %');t('xs_mrm',x.qs[o.q]+' · δ '+sg(o.det*1000,0)+' pm');t('xs_las',f1(o.PL)+' mW · '+f1(o.LL,3)+' nm');$('#xs_mrm').className=cq;
+ t('vfx',sg(o.x)+' µm');t('vfy',sg(o.y)+' µm');t('vfz',f1(o.z,0)+' µm');
+ $('#xfv').innerHTML=fauSVG(o);t('xeta',f1(o.eta*100)+' %');t('xfl','−'+f1(o.facetDB,2)+' dB');t('xtl','−'+f1(2*o.facetDB,2)+' dB');t('xmm','−'+f1(o.misDB,2)+' dB');
+ t('vta',f1(o.Ta)+' °C');t('vhp',o.on?f1(o.Ph,2)+' mW':'—');t('xlk',LKM?x.mrm.lk[LKM]:'');
+ $('#xsp').innerHTML=specSVG(o,x.mrm);t('xta',f1(o.Ta)+' °C');t('xdh','+'+f1(o.dTh)+' K');t('xtr',f1(o.Tr)+' °C');t('xlr',f1(o.lres,3)+' nm');t('xde',sg(o.det*1000,0)+' pm');t('xtt',f1(o.Tavg*100,0)+' %');
+ const cc=$('#xcc');cc.textContent=x.qs[o.q]+' · '+f1(o.cRel*100,0)+' %';cc.className=cq;
+ t('vlp',f1(o.PL)+' mW · '+f1(o.PLdBm)+' dBm');t('vll',f1(o.LL,3)+' nm');t('xlp',f1(o.PL)+' mW ('+f1(o.PLdBm)+' dBm)');t('xlpic',f1(o.Ppic,2)+' mW ('+f1(10*Math.log10(o.Ppic))+' dBm)');t('xlf',f1(o.Pf,2)+' mW ('+f1(o.PfdBm)+' dBm)');t('xll',f1(o.LL,3)+' nm / '+sg(o.det*1000,0)+' pm')}
+/* ---------- M4-C 鏈路效能：結構只在 panel() 產生；perfPanel() 只改數字與小圖（滑桿拖曳不中斷） ---------- */
+const capS=c=>c>=1000?f1(c/1000,1)+' Tb/s':c+' Gb/s',fq=v=>f1(v,v%1?1:0),fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(m,k)=>o[k]),
+ Wt=v=>v<1?f1(v*1000,0)+' mW':f1(v,2)+' W',tS=ps=>ps<1000?f1(ps,ps<10?2:ps<100?1:0)+' ps':ps<1e6?f1(ps/1000,ps<1e4?2:1)+' ns':f1(ps/1e6,2)+' µs';
+/* 開頁與切換速率時，讓概覽卡片與規格表的通道數字跟著目前情境（預設 1.6T 時與原字串完全相同） */
+function syncSpec(){const r=PERF;PM.engine.m[0][2]=r.n+' × '+r.g+' Gb/s PAM4';PM.engine.m[1][2]=capS(r.cap);PM.rings.m[2][2]=r.g+' Gb/s PAM4';SP[1][0][2]=r.n+' × '+r.g+'G PAM4 = '+r.rate}
+/* M5.5：原「鏈路效能」子頁的五個區塊，改為看板內的指標細節（一次顯示一個，內容與公式說明完全保留）。k = cap/loss/pwr/lat/eye */
+function perfHTML(d,k){const p=d.p,mt=(lb,id)=>'<div class="met"><span>'+lb+'</span><b id="'+id+'"></b></div>';
+ if(k=='cap')return '<p class="xmsg">'+p.cap.f+'</p><div id="pln"></div><p class="xs2" style="margin:0">'+p.cap.sv+'</p>'+p.cap.m.map((m,i)=>mt(m,'pc'+i)).join('')+'<p class="xs2">'+p.cap.n+'</p><p class="xs2">'+p.how+'</p>';
+ if(k=='loss')return '<div class="wf4" id="pwf"></div><div class="wft"><span id="pfrom"></span><span id="pto"></span></div>'+mt(p.loss.tot,'pl0')+mt(p.loss.eta,'pl1')+mt(p.loss.las,'pl2')
+   +'<div class="elb">'+mt(p.loss.el,'pl3')+'<p class="xs2" style="margin:4px 0 0">'+p.loss.elN+'</p></div><p class="xs2">'+p.loss.n+'</p>';
+ if(k=='pwr')return '<p class="xs2" style="margin-top:0"><b>'+p.pwr.scope+'</b></p><div class="stk" id="pst"></div><div class="ppl" id="ppl"></div>'+mt(p.pwr.tot,'pp0')+mt(p.pwr.pj,'pp1')+'<p class="xs2" id="ppj" style="margin:3px 0 0"></p>'+mt(p.pwr.lo,'pp2')+mt(p.pwr.le,'pp3')+'<p class="xs2">'+p.pwr.n+'</p>';
+ if(k=='lat')return '<span class="rw">'+p.lat.fl+'</span><div class="xrow" style="margin-top:0">'+OptiKit.cpoPerf.K.fibers.map(m=>'<button class="pwb'+(m==PERF.fm?' on':'')+'" data-fm="'+m+'">'+m+' m</button>').join('')+'</div>'
+   +'<span class="rw">'+p.lat.ph+'</span><div class="lt4" id="plp"></div>'+mt(p.lat.sum,'pt0')+'<span class="rw">'+p.lat.sh+'</span><div class="lt4" id="pls"></div><p class="xs2" style="margin:2px 0 0">'+p.lat.log+'</p><p class="xs2">'+p.lat.n+'</p>';
+ return '<div class="eyw" id="pey"></div>'+mt(p.eye.idx,'pe0')+mt(p.eye.q,'pe1')+mt(p.eye.sw,'pe2')+mt(p.eye.ns,'pe3')+'<p class="xs2" id="pdr"></p><p class="xs2">'+p.eye.n+'</p>'}
+/* 通道示意：N 條「EIC → MRM → 光纖」；微環顏色＝代表通道的調變對比（與 3D 同一映射），光纖亮度＝光纖平均功率（與 3D 粒子同一映射） */
+function laneSVG(r,o){const n=r.n,gp=n>8?6:n>4?9:12,y0=16,h=y0+n*gp+16,rc='#'+new T.Color(0x7d8590).lerp(new T.Color(0x8ff0dc),Math.min(1,Math.max(0,o.cRel))).getHexString(),op=pv(o.PfdBm).toFixed(2);let s='';
+ for(let i=0;i<n;i++){const y=(y0+gp*(i+.5)).toFixed(1);s+='<line x1="62" y1="'+y+'" x2="152" y2="'+y+'" class="la e"/><circle cx="160" cy="'+y+'" r="'+Math.min(4,gp*.38).toFixed(1)+'" style="fill:none;stroke:'+rc+';stroke-width:1.6"/><line x1="168" y1="'+y+'" x2="250" y2="'+y+'" class="la m" style="stroke-opacity:'+op+'"/>'+(i==0?'<text class="tk" x="254" y="'+(+y+3)+'">#1</text>':'')}
+ return '<svg class="xv ln'+(state.running?' run':'')+'" viewBox="0 0 300 '+h+'"><rect x="6" y="'+y0+'" width="52" height="'+n*gp+'" rx="5" style="fill:#17181c"/><text x="32" y="'+(y0+n*gp/2-1)+'" text-anchor="middle" style="fill:#fff;font-weight:700">ASIC</text><text x="32" y="'+(y0+n*gp/2+9)+'" text-anchor="middle" style="fill:#bbb">SerDes</text>'
+  +'<text x="107" y="11" text-anchor="middle">EIC · '+r.g+'G</text><text x="160" y="11" text-anchor="middle">MRM</text><text x="209" y="11" text-anchor="middle">SMF</text>'+s+'<text class="tk" x="292" y="'+(h-4)+'" text-anchor="end">'+n+' × '+r.g+'G = '+capS(r.cap)+'</text></svg>'}
+/* 教育級眼圖（兩階簡化）：上下軌跡 = 接收端亮／暗位元平均功率（PERF），雜訊帶 ±3σ（σ ∝ √符號率）；固定亂數種子 → 同參數同圖。非量測 */
+function eyeSVG(r,x){const sw0=OptiKit.cpoPerf.sw0,lo=r.Prxd/sw0,hi=r.Prxb/sw0,sg=r.sig,top=Math.max(1.9,hi+4*sg),X=u=>20+u*125,Y=v=>116-v/top*100;let sd=7;
+ const rn=()=>(sd=sd*16807%2147483647)/2147483647,gs=()=>Math.sqrt(-2*Math.log(rn()+1e-9))*Math.cos(2*Math.PI*rn());let tr='';
+ for(let k=0;k<24;k++){const b=[k&1,(k>>1)&1,(k>>2)&1],nz=[gs(),gs(),gs()].map(v=>v*sg),lv=i=>(b[i]?hi:lo)+nz[i],
+   v=u=>{for(const c of [.5,1.5]){const dd=u-c;if(Math.abs(dd)<.25){const ff=(1-Math.cos(Math.PI*(dd+.25)/.5))/2,i0=c<1?0:1;return lv(i0)*(1-ff)+lv(i0+1)*ff}}return lv(u<.5?0:u<1.5?1:2)};
+  let p='';for(let j=0;j<=40;j++){const u=j/20;p+=(j?'L':'M')+X(u).toFixed(1)+','+Y(Math.max(0,v(u))).toFixed(1)}tr+='<path class="tr" d="'+p+'"/>'}
+ const ot=hi-3*sg,ob=lo+3*sg,open=ot>ob,xc=X(1),qc=r.q=='good'?'#2e9d6a':r.q=='warn'?'#d08a1a':'#d9534f';
+ return '<svg class="xv ey" viewBox="0 0 300 132"><line x1="20" y1="'+Y(0)+'" x2="270" y2="'+Y(0)+'" style="stroke:var(--line)"/><text x="16" y="'+(Y(0)+3)+'" text-anchor="end">0</text>'
+  +'<rect class="swp" x="20" y="14" width="6" height="102"/>'+tr
+  +'<line x1="20" y1="'+Y(hi).toFixed(1)+'" x2="270" y2="'+Y(hi).toFixed(1)+'" style="stroke:var(--mut);stroke-dasharray:2 3"/><line x1="20" y1="'+Y(lo).toFixed(1)+'" x2="270" y2="'+Y(lo).toFixed(1)+'" style="stroke:var(--mut);stroke-dasharray:2 3"/>'
+  +'<text x="274" y="'+(Y(hi)+3).toFixed(1)+'">'+x.hi+'</text><text x="274" y="'+(Y(lo)+3).toFixed(1)+'">'+x.lo+'</text>'
+  +(open?'<rect x="'+(xc-14)+'" y="'+Y(ot).toFixed(1)+'" width="28" height="'+(Y(ob)-Y(ot)).toFixed(1)+'" style="fill:'+qc+';fill-opacity:.18;stroke:'+qc+';stroke-width:1.4"/><text class="tk" x="'+(xc+18)+'" y="'+((Y(ot)+Y(ob))/2+3).toFixed(1)+'">'+x.op+'</text>'
+   :'<text class="tk" x="'+xc+'" y="'+(Y((hi+lo)/2)+3).toFixed(1)+'" text-anchor="middle" style="fill:#d9534f">✕ '+x.cl+'</text>')
+  +'<text class="tk" x="292" y="11" text-anchor="end">'+x.tag+'</text><text x="20" y="128">−0.5 UI</text><text x="'+xc+'" y="128" text-anchor="middle">0</text><text x="270" y="128" text-anchor="end">+0.5 UI</text></svg>'}
+/* 即時更新（每次 optSet 都呼叫）：只改數字與小圖，不重建控制組，所以拖曳滑桿不中斷。各區塊存在才更新（看板一定存在；細節、比較表依目前畫面） */
+function perfPanel(){const r=PERF,o=OPT,d=D[L],p=d.p,u=d.ui,t=(id,v)=>{const e=$('#'+id);if(e)e.textContent=v},qn=p.qs[r.q],cq='q-'+r.q,EHp=f1(Math.max(0,r.EH)*100,0);
+ /* 看板五格：數值改變時短暫以橘色閃一下，讓使用者看出「哪一項變了、哪一項沒變」 */
+ const sv=(id,v)=>{const e=$('#'+id);if(!e)return null;if(e.textContent!==v){const had=e.textContent!=='';e.textContent=v;if(had&&e.tagName=='B'){e.classList.remove('chg');void e.offsetWidth;e.classList.add('chg')}}return e},
+  bar=(id,f,c)=>{const e=$('#'+id);if(e){e.style.width=(Math.max(0,Math.min(1,f))*100).toFixed(1)+'%';e.className=c||''}};
+ if($('#k_cap')){const lt=r.lat.el+r.lat.fib;
+  sv('k_cap',capS(r.cap)+(r.front?' *':''));sv('ks_cap',fmt(u.ks.cap,{n:r.n,g:r.g}));bar('kb_cap',r.cap/3200);
+  sv('k_loss',f1(r.lossTot)+' dB');sv('ks_loss',fmt(u.ks.loss,{r:f1(r.PrxdBm),e:f1(r.el.il)}));bar('kb_loss',r.lossTot/20);
+  sv('k_pwr',Wt(r.tot));sv('ks_pwr',fmt(u.ks.pwr,{p:f1(r.pJ,2)}));bar('kb_pwr',r.tot/20);
+  sv('k_lat',tS(lt));sv('ks_lat',fmt(u.ks.lat,{m:r.fm,e:tS(r.lat.el)}));bar('kb_lat',Math.log10(Math.max(lt,1))/7);
+  const ke=sv('k_eye',qn+' · '+EHp+' %');ke.classList.remove('q-good','q-warn','q-bad');ke.classList.add(cq);sv('ks_eye',fmt(u.ks.eye,{s:f1(r.sig/OptiKit.cpoPerf.K.sig0*100,0)}));bar('kb_eye',r.EH,cq);
+  t('dst',(r.front?'* '+p.front+' · ':'')+(state.running?u.dOn:u.dOff))}
+ t('kcf',(r.front?'* '+p.front+' · ':'')+p.cfgT[r.rate][r.ci]);
+ if($('#cmp'))cmpUI();
+ /* ① 通道 */
+ if($('#pln')){$('#pln').innerHTML=laneSVG(r,o);[capS(r.cap),r.n,r.g+' Gb/s',f1(r.line1,2)+' Gb/s',f1(r.baud,3)+' GBd',fq(r.fN)+' GHz',f1(r.line,1)+' Gb/s'].forEach((v,i)=>t('pc'+i,v))}
+ /* ② 損耗：前五行 = OPT.loss（光學調校同一模型），後兩行 = 光纖＋連接器 */
+ if($('#pwf')){const lb=d.x.wf.concat([fmt(p.loss.fib,{m:r.fm}),p.loss.con]),mx=Math.max(8,...r.loss);
+  $('#pwf').innerHTML='<div class="hd"><span>'+p.loss.col[0]+'</span><span></span><b>'+p.loss.col[2]+'</b><b>'+p.loss.col[3]+'</b></div>'+r.loss.map((v,i)=>'<div><span>'+lb[i]+'</span><i class="'+((i==1||i==4)&&o.fauDB>1||i==3&&o.q!='good'?'hot':'')+'" style="width:'+Math.min(100,v/mx*100).toFixed(0)+'%"></i><b>−'+f1(v,2)+' dB</b><b>'+f1(10*Math.log10(r.after[i]),1)+' dBm</b></div>').join('');
+  t('pfrom',p.loss.from+' '+f1(o.PL)+' mW ('+f1(o.PLdBm)+' dBm)');t('pto','→ '+p.loss.rx+' '+f1(r.Prx,2)+' mW ('+f1(r.PrxdBm)+' dBm)');
+  t('pl0','−'+f1(r.lossTot,2)+' dB');t('pl1',f1(o.eta*100)+' % (−'+f1(o.facetDB,2)+' dB)');t('pl2',f1(r.laserTot,0)+' mW = '+r.n+' × '+f1(o.PL)+' mW');t('pl3',f1(r.el.il,2)+' dB @ '+fq(r.fN)+' GHz')}
+ /* ③ 功耗 */
+ if($('#pst')){const ks=['ser','drv','las','heat'];$('#pst').innerHTML=ks.map(k=>'<i class="c-'+k+'" style="width:'+(r.pw[k]/r.tot*100).toFixed(2)+'%"></i>').join('');
+  $('#ppl').innerHTML=ks.map((k,i)=>'<div><i class="c-'+k+'"></i><span>'+p.pwr.it[i]+'</span><b>'+Wt(r.pw[k])+'</b><b>'+f1(r.pw[k]/r.tot*100,0)+' %</b></div>').join('');
+  t('pp0',Wt(r.tot));t('pp1',f1(r.pJ,2)+' pJ/bit');t('ppj',fmt(p.pwr.pjN,{c:capS(r.cap)}));t('pp2',Wt(r.laserTot/1000));t('pp3',Wt(r.pw.las))}
+ /* ④ 延遲（ps；長條為對數刻度 1 ps → 10 µs） */
+ if($('#plp')){const row=(lab,ps)=>'<div><span>'+lab+'</span>'+(ps==null?'<i class="na" style="width:100%"></i><b>'+p.lat.ne+'</b>':'<i style="width:'+Math.max(2,Math.min(100,Math.log10(Math.max(ps,1))/7*100)).toFixed(0)+'%"></i><b>'+tS(ps)+'</b>')+'</div>',lt=r.lat;
+  $('#plp').innerHTML=row(p.lat.it[0],lt.el)+row(fmt(p.lat.it[1],{m:r.fm}),lt.fib)+row(p.lat.it[2],null);t('pt0',tS(lt.el+lt.fib));
+  $('#pls').innerHTML=row(p.lat.se[0],lt.bit)+row(p.lat.se[1],lt.sym)+row(p.lat.se[2],lt.pktN)+row(p.lat.se[3],lt.pkt1)}
+ /* ⑤ 眼圖 */
+ if($('#pey')){const ey=$('#pey');ey.innerHTML=eyeSVG(r,p.eye);ey.classList.toggle('run',state.running);ey.classList.toggle('off',!state.running);
+  t('pe0',EHp+' %');const q=$('#pe1');q.textContent=qn;q.className=cq;t('pe2',f1(r.s1*100,0)+' %');t('pe3',f1(r.sig/OptiKit.cpoPerf.K.sig0*100,0)+' %');
+  const sz=(v,n)=>sg(Math.abs(v)<.5*Math.pow(10,-n)?0:v,n);/* 避免顯示 −0.0 */
+  t('pdr',fmt(p.eye.dr,{a:sz(r.drv.fau,1),b:sz(r.drv.mrm,1),c:sz(r.drv.las,1),d:sz(r.drv.fib,2),e:f1(r.sig/OptiKit.cpoPerf.K.sig0*100,0)+' %'}))}}
+/* 右側操作（看板、控制組切換、各控制組按鈕）：全部委派在 #panel 上。M5.5 已移除「點指標 → 跳到下方細節並捲動」的舊行為 */
+$('#panel').addEventListener('click',e=>{const g=k=>e.target.closest('['+k+']');let b;
+ if(b=g('data-sub')){const n=+b.dataset.sub;if(n!=SUB){SCR[SUB]=$('#pb').scrollTop;SUB=n;panel(SCR[SUB]||0)}return}/* 切換控制組：只換畫面，不動任何參數；各組記住自己的捲動位置 */
+ if(g('data-dxc')){DX=null;dash();return}
+ if(b=g('data-dx')){DX=DX==b.dataset.dx?null:b.dataset.dx;dash();return}/* 看板細節：在看板內原位展開／收合，不捲動 */
+ /* 容量情境、通道配置、光纖長度示例：改 state → 看板、比較表、規格與概覽同步；panel() 保留目前捲動位置 */
+ if(b=g('data-rate')){if(b.dataset.rate!=state.rate){optSet({rate:b.dataset.rate,lanes:0});syncSpec();panel();ovUI();refUI()}return}
+ if(b=g('data-cfg')){optSet({lanes:+b.dataset.cfg});syncSpec();panel();ovUI();refUI();return}
+ if(b=g('data-fm')){optSet({fiberM:+b.dataset.fm});panel();return}
+ if(b=g('data-cpl')){optSet({cpl:b.dataset.cpl});panel();return}
+ if(g('data-ht')){optSet({heatOn:!state.heatOn});panel();return}
+ if(g('data-lock')){const r=OptiKit.cpoOptics.lock(state);optSet({heatOn:true,heatP:lockP(r)});LKM=r.why;panel();return}
+ if(b=g('data-xr')){const k=b.dataset.xr,p={};(k=='all'?['fau','mrm','las']:[k]).forEach(n=>Object.assign(p,XDEF[n]));if(k=='all')p.cpl='ssc';
+  optSet(p);if(k=='mrm'||k=='all')optSet({heatP:lockP(OptiKit.cpoOptics.lock(state))});/* 雷射重設不動加熱器：保留「波長改變 → 需重新調諧」的連動 */
+  panel();return}});
+const XI={fx:'fauX',fy:'fauY',fz:'fauZ',ta:'tAmb',hp:'heatP',lp:'laserP',ll:'laserL'};
+$('#pb').oninput=e=>{if(e.target.id=='ds'){optSet({dist:+e.target.value});dist()}/* M4-C：距離也經 optSet → PERF（SerDes 功耗、延遲）同步 */if(XI[e.target.id])optSet({[XI[e.target.id]]:+e.target.value})};
+function render(){const d=D[L],u=d.ui;document.documentElement.lang=zh2();$('#sb').textContent=d.sub;$('#bd').textContent=d.bd;$('#st1').textContent=u.ov;$('#hint').textContent=d.hint;
+ tb.forEach((b,i)=>b.title=d.tb[i]);document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l==L));
+ $('#pill').textContent=d.crs;$('#scb .tx').textContent=d.scB;$('#rfs .tx').textContent=u.sec;$('#rfp .tx').textContent=u.spec;
+ if(OptiKit.courseNav)OptiKit.courseNav($('#course'),'cpo',L,'');selUI();sigUI();panel();schem();labelText();dock()}
+const zh2=()=>L=='zh'?'zh-Hant':'en';
+/* ---------- 動畫迴圈 ---------- */
+const t0=performance.now();
+function loop(now){requestAnimationFrame(loop);const t=(now-t0)/1000;
+ if(AUTO){th+=.004;EX=.5+.45*Math.sin(t*.6);$('#exr').value=EX*100;$('#exv').textContent=Math.round(EX*100)+'%'}
+ upd();cam();vOff();const PW=state.running;
+ if(PW){const s=Math.max(0,Math.floor((now-RT0)/1000/DUR)%NST);/* M7-A：按下運行的同一幀 now 可能略早於 RT0，避免步驟算成 −1（待決 #31） */if(s!==state.stage){state.stage=s;stageUI()}glow(t)}
+ /* M4-B：雷射 LED 亮度 ∝ 雷射功率（dBm 示意）；青色 CW 粒子 ∝ 進入 FAU 前的功率；紫色亮/暗粒子 ∝ 光纖中亮/暗位元功率（FAU 偏移、MRM 失諧都會讓它變暗或亮暗差消失） */
+ const V=OPT.vis;LED.emissive.setHex(PW?0x3ee0c0:0x0a2a24);if(PW)LED.emissive.multiplyScalar(V.led);CWM.opacity=V.cw;MM1.opacity=V.hi;MM0.opacity=V.lo;
+ const f=VIS.fibers!==false,ev=PW&&VIS.engine!==false,LN={};
+ PS.forEach(p=>{const on=PW&&f&&CV[p.c];p.m.visible=!!on;if(on){p.m.position.copy(CV[p.c].getPoint((t*.12+p.k/8)%1));if(p.c%2){const b=bits[p.k];p.m.material=b?MM1:MM0;p.m.scale.setScalar(.45+.75*(b?V.hi:V.lo/.6))}}});
+ const ow=off(REG.wg[0],'wg'),of=off(REG.fibers[0],'fibers'),xv=f&&VIS.wg!==false;
+ XM.forEach(m=>{m.sp.visible=m.fp.visible=m.ln.visible=xv;if(!xv)return;m.sp.position.set(m.s*(4.51+LAY.dx),1.5+ow,0);m.fp.position.set(m.s*(4.47+LAY.dx+FV.gx),1.5+of+FV.y,FV.z);
+  const a=m.ln.geometry.attributes.position;a.setXYZ(0,m.sp.position.x,m.sp.position.y,m.sp.position.z);a.setXYZ(1,m.fp.position.x,m.fp.position.y,m.fp.position.z);a.needsUpdate=true;m.ln.geometry.computeBoundingSphere()});
+ EP.forEach(p=>{p.m.visible=ev;if(ev){const key=p.s+'|'+p.z,pts=LN[key]||(LN[key]=lane(p.s,p.z)),b=bits[p.k];along(pts,(t*.12+p.k/8)%1,p.m.position);p.m.material=b?EM1:EM0;p.m.scale.setScalar(b?1:.6)}});
+ R.render(S,C);labels()}
+applyLayout();Object.keys(VIS).forEach(k=>setVis(k,VIS[k]));optSet();syncSpec();init();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
