@@ -1,5 +1,5 @@
 # 自己用來入門 光通訊 CPO共同封裝光學
-https://ds456-create.github.io/optical-3d-lessons/
+線上展示：https://ds456-create.github.io/optical-3d-lessons/ 
 
 ### 從零開始，認識光通訊、光收發模組、NPO 與 CPO
 
