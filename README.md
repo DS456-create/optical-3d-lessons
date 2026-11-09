@@ -1,33 +1,61 @@
-# 光通訊 3D 互動教材 · Optical Interconnect 3D Lessons
+# 光通訊 3D 互動教材
 
-可插拔光模組（Pluggable）、NPO 近封裝光學、CPO 共同封裝光學三門 3D 互動課程，以及三架構比較頁。
-Three interactive 3D lessons — Pluggable optics, NPO (near-packaged optics), CPO (co-packaged optics) — plus an architecture comparison page.
+### 從零開始，認識光通訊、光收發模組、NPO 與 CPO
 
-## 頁面 · Pages
+我原本對光通訊、半導體封裝和 CPO 幾乎沒有概念。
 
-| 檔案 | 內容 |
+剛開始接觸這些技術時，發現網路上有很多專業文章、論文和架構圖，但對初學者來說，光靠文字和圖片，還是很難真正理解這些元件長什麼樣子、彼此如何連接，以及訊號是怎麼傳遞的。
+
+所以我想做一個能夠自己動手操作的 3D 學習網站。
+
+不需要真的擁有昂貴的光通訊設備，也能透過旋轉、拆解、觀察元件和調整參數，慢慢建立對光通訊技術的理解。
+
+這個網站最初是為了幫助我自己從零開始學習，也希望能讓其他對光通訊有興趣、卻不知道該從哪裡開始的人，更容易接觸這個領域。
+
+## 三個學習課程
+
+| 課程 | 可以學到什麼 |
 |---|---|
-| `index.html` | CPO 共同封裝光學（網站首頁） |
-| `courses/npo.html` | NPO 近封裝光學 |
-| `courses/pluggable.html` | 傳統可插拔光模組 |
-| `compare.html` | 三架構比較 |
+| **1. 傳統可插拔光收發模組** | 認識光模組內部元件、PCB 電氣訊號路徑，以及光模組如何插入、拔除和傳輸資料。 |
+| **2. NPO 近封裝光學** | 了解 ASIC 與光學引擎的封裝位置、電氣互連，以及為什麼要縮短傳輸距離。 |
+| **3. CPO 共同封裝光學** | 探索共同封裝結構、光電訊號轉換、光纖對準、微環調變器、雷射及傳輸效能。 |
 
-純靜態網站（HTML + CSS + 原生 JavaScript），所有本機資源皆使用相對路徑，可直接部署於 GitHub Pages 的專案子路徑（例如 `https://<帳號>.github.io/<儲存庫>/`），也可在本機雙擊 `index.html` 開啟。
-Static site; all local assets use relative paths, so it works under a GitHub Pages project sub-path and from `file://`.
+網站也提供三種架構的比較頁面，方便理解它們在封裝方式、訊號路徑、功耗、散熱與維修上的差異。
 
-## 數值說明 · About the numbers
+## 這個網站可以怎麼玩？
 
-本教材所有物理數值皆為**教育級近似**：〔A〕公開／產業資料、〔B〕教科書公式、〔C〕教育假設。非產品規格、非 OIF／IEEE 標準、非實測。
-All figures are educational approximations ([A] public/industry data, [B] textbook formulas, [C] teaching assumptions) — not product specs, standards, or measurements.
+你可以自由旋轉、放大 3D 模型，選取不同元件，或透過分離圖層觀察封裝內部結構。
 
-## 獨立專案聲明與致謝 · Independent project & acknowledgement
+也可以按下「運行」，觀察電訊號與光訊號的傳遞過程。
 
-本網站為**獨立的教育專案**，與 Learn Arduino 及其作者**無任何隸屬或官方關係**。
-介面的互動教學概念（3D 模型＋即時數值＋原理圖、「探索 · 理解 · …」式的學習流程）受到 Learn Arduino 互動 3D 課程（https://learn-arduino-red.vercel.app/ ，網站署名「設計：x.com/DilumSanjaya」）的啟發；本網站未使用其程式碼、截圖或任何素材，所有內容與 3D 模型均為本專案自行製作。
+在 CPO 課程中，還能親自調整光纖對準位置、微環溫度、雷射功率和傳輸參數，看看不同條件如何影響光通訊系統。
 
-This is an independent educational project, not affiliated with or endorsed by Learn Arduino or its author. Its interaction concept was inspired by the Learn Arduino interactive 3D course (https://learn-arduino-red.vercel.app/, credited on that site as "design: x.com/DilumSanjaya"); no code, screenshots or assets from it are used.
+我希望這不只是一個展示 3D 模型的網站，而是一個能夠邊操作、邊觀察、邊理解原理的學習工具。
 
-## 第三方資源 · Third-party resources (loaded from CDN)
+## 開始學習
 
-- [three.js r128](https://threejs.org/)（cdnjs）— MIT License
-- [Noto Sans TC](https://fonts.google.com/noto/specimen/Noto+Sans+TC)（Google Fonts）— SIL Open Font License 1.1
+**[開啟光通訊 3D 互動教材](https://ds456-create.github.io/optical-3d-lessons/)**
+
+建議先從傳統可插拔光模組開始，再依序探索 NPO 與 CPO。
+
+## 關於教材中的數值
+
+網站中的部分功耗、損耗、溫度、傳輸距離及訊號品質數據，使用公開技術資料與簡化的教育模型進行示意。
+
+這些內容主要是幫助理解技術原理和變化趨勢，並不代表特定產品的實際測試結果，也不能直接當作業界設計規格。
+
+## 參考與致謝
+
+這個網站的互動學習方式，受到 [Learn Arduino](https://learn-arduino-red.vercel.app/) 的啟發。
+
+我很喜歡它讓學習者透過 3D 模型、動態實驗和即時回饋理解技術的方式，因此嘗試將這樣的學習體驗應用在光通訊領域。
+
+本網站為獨立製作的學習專案，並非 Learn Arduino 官方作品，也沒有使用原作者的程式碼或圖片素材。
+
+### 使用技術與第三方資源
+
+- Three.js r128（MIT License）
+- Noto Sans TC（SIL Open Font License 1.1）
+- HTML、CSS、JavaScript
+
+本專案希望透過更直觀的方式，讓原本看起來複雜、遙遠的光通訊技術，變得更容易理解。
